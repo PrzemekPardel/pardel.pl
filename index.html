@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Przemysław Pardel</title>
+  <meta name="description" content="Strona Przemysława Pardela. Nowa wersja w przygotowaniu.">
+  <style>
+    :root {
+      --bg: #f7f6f3;
+      --text: #1d1d1f;
+      --muted: #6b6b70;
+      --line: #d8d6d0;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141416;
+        --text: #ececee;
+        --muted: #9a9aa0;
+        --line: #2e2e33;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Georgia, "Times New Roman", serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    main {
+      max-width: 560px;
+      width: 100%;
+    }
+    .domain {
+      font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1 {
+      font-weight: normal;
+      font-size: clamp(2rem, 6vw, 2.8rem);
+      line-height: 1.15;
+      margin: 0.6rem 0 1.4rem;
+    }
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    hr {
+      border: 0;
+      border-top: 1px solid var(--line);
+      margin: 2rem 0 1rem;
+    }
+    footer {
+      font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="domain">pardel.pl</div>
+    <h1>Przemysław Pardel</h1>
+    <p>Nowa wersja strony jest w przygotowaniu. Zapraszam wkrótce.</p>
+    <hr>
+    <footer>&copy; 2026 Przemysław Pardel</footer>
+  </main>
+</body>
+</html>
