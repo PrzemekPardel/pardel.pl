@@ -203,7 +203,7 @@
   </aside>
 
   <section class="clock" aria-label="Time remaining">
-    <div class="cap">Time remaining to 14.10.2061 &middot; statistical endpoint, 80 years</div>
+    <div class="cap">Time remaining</div>
     <div class="big" id="cBig" aria-live="off">–</div>
     <div class="meter"><i id="cBar"></i></div>
     <div class="row"><span>Remaining <b id="cPct">–</b></span><span>Seconds <b id="cSec">–</b></span></div>
@@ -232,8 +232,8 @@
     // Leave empty to run without a server (the page then shows only the current visitor).
     var LOG_ENDPOINT = "";
 
-    var BIRTH = Date.UTC(1981, 9, 13, 23, 0, 0);   // 14.10.1981 00:00 Warsaw (CET)
-    var END   = Date.UTC(2061, 9, 13, 22, 0, 0);   // 14.10.2061 00:00 Warsaw (CEST)
+    var BIRTH = Date.UTC(1981, 9, 13, 23, 0, 0);
+    var END   = Date.UTC(2061, 9, 13, 22, 0, 0);
     var WEEK  = 7 * 864e5;
     var SPAN  = END - BIRTH;
 
@@ -420,7 +420,7 @@
         ctx.globalCompositeOperation = "source-over";
         ctx.font = "10px monospace"; ctx.textBaseline = "middle";
         ctx.fillStyle = "rgba(255,120,160,0.85)";
-        ctx.fillText("0 · 14.10.2061", z0.x + 14, z0.y);
+        ctx.fillText("0", z0.x + 14, z0.y);
         ctx.globalCompositeOperation = "lighter";
       }
 
@@ -491,21 +491,16 @@
     var cPct = document.getElementById("cPct"), cSec = document.getElementById("cSec");
     function pad(n, l) { n = String(n); while (n.length < l) n = "0" + n; return n; }
     function grp(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
-    function addYears(ms, y) { var d = new Date(ms); d.setUTCFullYear(d.getUTCFullYear() + y); return d.getTime(); }
     var lastShown = "";
 
     function updateClock(nowMs) {
       var rem = Math.max(0, END - nowMs);
-      var y = new Date(END).getUTCFullYear() - new Date(nowMs).getUTCFullYear();
-      var anchor = addYears(nowMs, y);
-      while (y > 0 && anchor > END) { y--; anchor = addYears(nowMs, y); }
-      var r = Math.max(0, END - anchor);
-      var d = Math.floor(r / 864e5); r -= d * 864e5;
-      var hh = Math.floor(r / 36e5); r -= hh * 36e5;
+      var hh = Math.floor(rem / 36e5);
+      var r = rem - hh * 36e5;
       var mm = Math.floor(r / 6e4); r -= mm * 6e4;
       var ss = Math.floor(r / 1000); var ms = Math.floor(r - ss * 1000);
-      var html = y + "<small>y</small>" + pad(d, 3) + "<small>d</small>" + pad(hh, 2) + ":" + pad(mm, 2) + ":" + pad(ss, 2) +
-                 "<small>." + pad(ms, 3) + "</small>";
+      var html = grp(hh) + "<small>h</small>" + pad(mm, 2) + "<small>m</small>" + pad(ss, 2) +
+                 "<small>." + pad(ms, 3) + "s</small>";
       if (html !== lastShown) { cBig.innerHTML = html; lastShown = html; }
       var frac = rem / SPAN;
       cBar.style.width = (frac * 100).toFixed(4) + "%";
@@ -537,7 +532,7 @@
       ["grey points: weeks already spent", ""],
       ["bright points: weeks still ahead", "hot"],
       ["the spiral converges on zero", ""],
-      ["destination: 14.10.2061", "warn"],
+      ["remaining time tends to zero", "warn"],
       ["each visitor is logged as a point of contact", "hot"],
       ["time does not pause for either of us", ""],
       ["awaiting launch of pardel.pl", "hot"]
