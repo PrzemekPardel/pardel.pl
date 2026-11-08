@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Przemysław Wiktor Pardel</title>
-  <meta name="description" content="Przemysław Wiktor Pardel. Opening soon.">
+  <meta name="description" content="Przemysław Wiktor Pardel.">
   <meta name="theme-color" content="#000000">
   <style>
     :root {
@@ -69,14 +69,6 @@
       83% { clip-path: inset(40% 0 38% 0); transform: translate(3px, -2px); }
       85% { clip-path: inset(100% 0 0 0); }
     }
-    .soon {
-      margin-top: 0.8rem;
-      font-size: clamp(0.62rem, 1.6vw, 0.82rem);
-      letter-spacing: 0.6em; text-transform: uppercase;
-      color: var(--green); text-shadow: 0 0 10px rgba(0,255,136,0.8);
-      animation: breathe 2.4s ease-in-out infinite;
-    }
-    .soon::after { content: "_"; animation: blink 1s steps(1) infinite; }
     @keyframes breathe { 50% { opacity: 0.45; } }
     @keyframes blink { 50% { opacity: 0; } }
 
@@ -184,7 +176,7 @@
       .foot { left: 16px; right: 16px; bottom: 12px; text-align: center; }
     }
     @media (prefers-reduced-motion: reduce) {
-      h1::before, h1::after, .soon, .soon::after { animation: none; }
+      h1::before, h1::after { animation: none; }
     }
   </style>
 </head>
@@ -197,7 +189,6 @@
 
   <header>
     <h1 id="name" data-text="Przemysław Wiktor Pardel">Przemysław Wiktor Pardel</h1>
-    <div class="soon">Opening soon</div>
   </header>
 
   <aside class="hud" aria-label="Contact statistics">
