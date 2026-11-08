@@ -116,10 +116,14 @@
     .hud .val { color: #eafff3; font-variant-numeric: tabular-nums; text-align: right; }
     .hud .places { margin-top: 8px; border-top: 1px solid var(--faint); padding-top: 8px; }
     .brand {
-      position: fixed; left: 16px; top: 16px;
-      font-size: 0.64rem; letter-spacing: 0.3em; text-transform: uppercase;
-      color: var(--dim); pointer-events: none;
+      position: fixed; left: 16px; top: 16px; z-index: 2;
+      display: flex; gap: 18px;
+      font-size: 0.66rem; letter-spacing: 0.3em; text-transform: uppercase;
     }
+    .brand a { color: var(--dim); text-decoration: none; cursor: pointer; }
+    .brand a:first-child { color: #eafff3; text-shadow: 0 0 8px rgba(0,255,136,0.7); }
+    .brand a:hover { color: var(--green); }
+    .brand a:focus-visible { outline: 2px solid #eafff3; outline-offset: 3px; }
 
     /* Terminal */
     .term {
@@ -165,12 +169,12 @@
 
     @media (max-width: 1060px) { .term { display: none; } }
     @media (max-width: 640px) {
-      .brand { display: none; }
+      .brand { top: auto; bottom: 34px; left: 0; right: 0; justify-content: center; gap: 16px; font-size: 0.58rem; letter-spacing: 0.22em; }
       .hud { left: 16px; right: 16px; width: auto; top: 12px; font-size: 0.56rem; display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; }
       .hud h2 { grid-column: 1 / -1; margin-bottom: 4px; }
       .hud .places { grid-column: 1 / -1; display: none; }
       header { top: 110px; }
-      .clock { bottom: 46px; }
+      .clock { bottom: 64px; }
       .clock .row { font-size: 0.54rem; }
       .clock .cap { font-size: 0.5rem; letter-spacing: 0.18em; }
       .foot { left: 16px; right: 16px; bottom: 12px; text-align: center; }
@@ -185,7 +189,12 @@
   <div class="scan" aria-hidden="true"></div>
   <div class="vignette" aria-hidden="true"></div>
 
-  <div class="brand" aria-hidden="true">pardel.pl // time nebula</div>
+  <nav class="brand" aria-label="Main">
+    <a href="about.html">About</a>
+    <a href="https://www.linkedin.com/in/pardel/" rel="me noopener" target="_blank">LinkedIn</a>
+    <a href="https://www.ur.edu.pl/pl/pracownik/strony-pracownicze/przemyslaw-wiktor-pardel" rel="noopener" target="_blank">UR</a>
+    <a href="https://ans.nowysacz.pl/" rel="noopener" target="_blank">ANS</a>
+  </nav>
 
   <header>
     <h1 id="name" data-text="Przemysław Wiktor Pardel">Przemysław Wiktor Pardel</h1>

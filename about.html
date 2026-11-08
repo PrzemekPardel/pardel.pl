@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>About · Przemysław Wiktor Pardel</title>
+  <meta name="description" content="Przemysław Wiktor Pardel, PhD Eng. Research scientist and engineer working on medical image analysis, computer vision and interpretable machine learning.">
+  <meta name="theme-color" content="#000000">
+  <link rel="canonical" href="https://pardel.pl/about.html">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Przemysław Wiktor Pardel",
+    "honorificPrefix": "dr inż.",
+    "jobTitle": "Research scientist and engineer",
+    "url": "https://pardel.pl/",
+    "affiliation": [
+      { "@type": "CollegeOrUniversity", "name": "University of Rzeszów", "url": "https://www.ur.edu.pl/" },
+      { "@type": "CollegeOrUniversity", "name": "Academy of Applied Sciences in Nowy Sącz", "url": "https://ans.nowysacz.pl/" }
+    ],
+    "knowsAbout": ["Medical image analysis", "Computer vision", "Interpretable machine learning", "Sports analytics"],
+    "sameAs": [
+      "https://www.linkedin.com/in/pardel/",
+      "https://orcid.org/0009-0001-2030-8526",
+      "https://scholar.google.pl/citations?user=Kzte-goAAAAJ",
+      "https://www.scopus.com/authid/detail.uri?authorId=36603271800",
+      "https://dblp.org/pers/hd/p/Pardel:Przemyslaw_Wiktor",
+      "https://www.ur.edu.pl/pl/pracownik/strony-pracownicze/przemyslaw-wiktor-pardel"
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #020604; --fg: #cfe9db; --head: #eafff3; --accent: #00ff88; --pink: #ff4fd8;
+      --muted: #7fa792; --line: rgba(0,255,136,0.18); --card: rgba(0,20,10,0.55);
+      --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg); }
+    body { color: var(--fg); font-family: var(--mono); font-size: 0.92rem; line-height: 1.75; -webkit-font-smoothing: antialiased; }
+    canvas#rain { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
+    .wrap { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 28px 16px 72px; }
+    a { color: var(--accent); text-underline-offset: 3px; }
+    a:focus-visible { outline: 2px solid var(--head); outline-offset: 2px; }
+
+    nav { display: flex; justify-content: space-between; gap: 16px; font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; }
+    nav a { text-decoration: none; color: var(--muted); }
+    nav a:hover, nav a[aria-current] { color: var(--accent); }
+    nav .right { display: flex; gap: 18px; }
+
+    header.hero { margin: 56px 0 40px; }
+    .kicker { font-size: 0.7rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--pink); }
+    h1 {
+      margin: 10px 0 6px;
+      font-size: clamp(1.6rem, 5vw, 2.7rem); line-height: 1.1; letter-spacing: 0.04em;
+      color: var(--head); text-transform: uppercase;
+      text-shadow: 0 0 6px rgba(0,255,136,0.7), 0 0 26px rgba(0,255,136,0.35);
+    }
+    .degree { color: var(--muted); font-size: 0.85rem; letter-spacing: 0.1em; }
+    .lead { margin-top: 22px; font-size: 1.02rem; color: var(--head); max-width: 70ch; }
+
+    .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+    .links a {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 12px; border: 1px solid var(--line); background: var(--card);
+      text-decoration: none; font-size: 0.74rem; letter-spacing: 0.08em; color: var(--head);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .links a:hover { border-color: var(--accent); box-shadow: 0 0 16px rgba(0,255,136,0.25); }
+    .links a span { color: var(--accent); }
+
+    section { margin-top: 44px; }
+    h2 {
+      font-size: 0.78rem; font-weight: 400; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--accent); padding-bottom: 10px; margin-bottom: 18px; border-bottom: 1px solid var(--line);
+    }
+    h2::before { content: "// "; color: var(--muted); }
+    p + p { margin-top: 0.9rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    .card { border: 1px solid var(--line); background: var(--card); padding: 14px 16px; }
+    .card h3 { font-size: 0.8rem; color: var(--head); letter-spacing: 0.06em; margin-bottom: 6px; font-weight: 600; }
+    .card p { font-size: 0.84rem; color: var(--fg); }
+
+    ol.timeline { list-style: none; border-left: 1px solid var(--line); margin-left: 6px; }
+    ol.timeline li { position: relative; padding: 0 0 18px 22px; }
+    ol.timeline li::before {
+      content: ""; position: absolute; left: -4px; top: 9px; width: 7px; height: 7px;
+      background: var(--accent); box-shadow: 0 0 10px var(--accent); border-radius: 50%;
+    }
+    .when { display: block; font-size: 0.72rem; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+    .what { color: var(--head); }
+    .where { color: var(--fg); font-size: 0.86rem; }
+
+    ul.plain { list-style: none; }
+    ul.plain li { padding-left: 18px; position: relative; margin-bottom: 6px; }
+    ul.plain li::before { content: ">"; position: absolute; left: 0; color: var(--accent); }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tags span { font-size: 0.7rem; padding: 3px 8px; border: 1px solid var(--line); color: var(--muted); }
+
+    footer { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 0.72rem; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    footer a { color: var(--muted); }
+    @media (max-width: 560px) { nav { letter-spacing: 0.15em; } nav .right { gap: 12px; } }
+  </style>
+</head>
+<body>
+  <canvas id="rain" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav aria-label="Main">
+      <a href="/">pardel.pl</a>
+      <div class="right">
+        <a href="/">Time</a>
+        <a href="about.html" aria-current="page">About</a>
+        <a href="privacy.html">Privacy</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="kicker">About</div>
+      <h1>Przemysław Wiktor Pardel</h1>
+      <div class="degree">PhD Eng. in Computer Science &middot; MBA</div>
+      <p class="lead">Research scientist and engineer working on medical image analysis, computer vision and
+        interpretable machine learning, with a parallel interest in sports science and analytics.
+        I try to connect academic rigour with production-grade engineering.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/pardel/" rel="me noopener" target="_blank"><span>in</span> LinkedIn</a>
+        <a href="https://www.ur.edu.pl/pl/pracownik/strony-pracownicze/przemyslaw-wiktor-pardel" rel="noopener" target="_blank"><span>UR</span> University of Rzeszów</a>
+        <a href="https://ans.nowysacz.pl/" rel="noopener" target="_blank"><span>ANS</span> ANS Nowy Sącz</a>
+        <a href="https://orcid.org/0009-0001-2030-8526" rel="me noopener" target="_blank"><span>iD</span> ORCID</a>
+        <a href="https://scholar.google.pl/citations?user=Kzte-goAAAAJ" rel="me noopener" target="_blank"><span>GS</span> Google Scholar</a>
+        <a href="https://www.scopus.com/authid/detail.uri?authorId=36603271800" rel="noopener" target="_blank"><span>Sc</span> Scopus</a>
+        <a href="https://dblp.org/pers/hd/p/Pardel:Przemyslaw_Wiktor" rel="noopener" target="_blank"><span>db</span> DBLP</a>
+      </div>
+    </header>
+
+    <section aria-labelledby="h-research">
+      <h2 id="h-research">Research</h2>
+      <p>My research concerns transparent, quantitatively validated AI systems for medical decision support. I place particular
+        weight on reproducibility, reliability of annotation and geometry-aware modelling: a model that measures an angle on
+        a radiograph should be judged against the variability of expert measurements, not only against a single reference label.</p>
+      <p>I work across the whole pipeline, from data acquisition and annotation protocols through modelling and validation to
+        deployment, and I treat each of these stages as part of the scientific result rather than as supporting engineering.</p>
+      <div class="grid" style="margin-top:18px">
+        <div class="card"><h3>Medical image analysis</h3><p>Automated measurement on radiographs, including tibial plateau angle estimation in canine orthopaedics, developed with the University of Zurich.</p></div>
+        <div class="card"><h3>Interpretable machine learning</h3><p>Models whose decisions can be inspected and questioned; earlier work on rough sets for classification of cardiological data.</p></div>
+        <div class="card"><h3>Computer vision</h3><p>Image processing and augmented reality, including light-source extraction and image-based lighting.</p></div>
+        <div class="card"><h3>Sports analytics</h3><p>Video and timing data for the analysis of athletic and combat-sport technique, close to my coaching practice.</p></div>
+      </div>
+      <div class="tags" aria-label="Collaborations">
+        <span>University of Zurich</span><span>Tierspital Zürich</span><span>Collegium Medicum, University of Rzeszów</span><span>Collegium Medicum, Jagiellonian University</span>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-now">
+      <h2 id="h-now">Current positions</h2>
+      <ol class="timeline">
+        <li><span class="when">current</span><span class="what">Assistant Professor</span><br><span class="where">Institute of Computer Science, Faculty of Exact and Technical Sciences, University of Rzeszów</span></li>
+        <li><span class="when">since October 2026</span><span class="what">Academic teacher and researcher</span><br><span class="where">Academy of Applied Sciences in Nowy Sącz (ANS), including work with the robotics laboratory</span></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="h-path">
+      <h2 id="h-path">Path</h2>
+      <ol class="timeline">
+        <li><span class="when">2020 – 2024</span><span class="what">Program Manager, Developer Relations</span><br><span class="where">Google, Zürich. Global developer programmes, including Google Developer Experts, Cloud Champions and Accelerator mentors; work around AI and Gemini.</span></li>
+        <li><span class="when">since 2016</span><span class="what">Founder and lead developer, Photometer PRO</span><br><span class="where">Light-metering application for photographers.</span></li>
+        <li><span class="when">2008 – 2016</span><span class="what">Researcher and lecturer</span><br><span class="where">University of Rzeszów. Doctoral research in artificial intelligence, image recognition and processing, and augmented reality.</span></li>
+        <li><span class="when">earlier</span><span class="what">Industry</span><br><span class="where">Software and IT projects, including MCX Systems, Positive Geeks and Factory117.</span></li>
+      </ol>
+      <ul class="plain" style="margin-top:6px">
+        <li>PhD Eng. in Computer Science (artificial intelligence, image processing, augmented reality)</li>
+        <li>MBA</li>
+        <li>Singularity University, Exponential Technologies programme, alumnus</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="h-teach">
+      <h2 id="h-teach">Teaching and mentoring</h2>
+      <p>I teach software engineering and applied AI, and I expect student projects to be documented, reproducible and
+        honest about their limitations. Recent courses include team programming, software engineering, mobile application
+        development, AI agents in medicine, and AI systems design with API integration. I also mentor student teams preparing
+        for AMPPZ, the Polish Collegiate Programming Contest, and supervise student research projects in computer vision.</p>
+      <p>I am looking for students, research assistants and future doctoral collaborators interested in medical imaging,
+        computer vision or sports analytics.</p>
+    </section>
+
+    <section aria-labelledby="h-off">
+      <h2 id="h-off">Outside the lab</h2>
+      <p>I come from Nowa Dęba in Podkarpacie. As a teenager I trained in the Polish junior national athletics team, and I still
+        run marathons. Today I coach young sprinters and middle-distance runners. In 2014 I rode a motorcycle to North Cape and,
+        a few weeks later, to South East Cape, about 10,000 km in three months. I am a husband and the father of three daughters.</p>
+    </section>
+
+    <footer>
+      <span>&copy; 2026 Przemysław Wiktor Pardel</span>
+      <span><a href="/">Time nebula</a> &middot; <a href="privacy.html">Privacy</a></span>
+    </footer>
+  </div>
+
+  <script>
+  (function () {
+    "use strict";
+    var c = document.getElementById("rain"), x = c.getContext("2d");
+    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var W, H, D = Math.min(window.devicePixelRatio || 1, 2), cols = [], cw = 16;
+    var G = "アイウエオカキクケコサシスセソタチツテト0123456789";
+    function size() {
+      W = window.innerWidth; H = window.innerHeight;
+      c.width = W * D; c.height = H * D; x.setTransform(D, 0, 0, D, 0, 0);
+      cols = []; for (var i = 0; i < Math.ceil(W / cw); i++) cols.push(Math.random() * -H);
+      x.fillStyle = "#020604"; x.fillRect(0, 0, W, H);
+    }
+    function tick() {
+      x.fillStyle = "rgba(2,6,4,0.12)"; x.fillRect(0, 0, W, H);
+      x.font = cw + "px monospace";
+      for (var i = 0; i < cols.length; i++) {
+        var edge = Math.abs(i * cw - W / 2) / (W / 2);
+        x.fillStyle = "rgba(0,255,136," + (0.02 + edge * edge * 0.16) + ")";
+        x.fillText(G.charAt((Math.random() * G.length) | 0), i * cw, cols[i]);
+        cols[i] += 7;
+        if (cols[i] > H + Math.random() * 600) cols[i] = Math.random() * -200;
+      }
+      setTimeout(function () { requestAnimationFrame(tick); }, 50);
+    }
+    size(); window.addEventListener("resize", size);
+    if (!reduced) tick();
+  })();
+  </script>
+</body>
+</html>
