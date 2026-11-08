@@ -11,8 +11,9 @@
       --bg: #000;
       --fg: #d7ffe6;
       --green: #00ff88;
-      --dim: rgba(0, 255, 136, 0.55);
+      --dim: rgba(0, 255, 136, 0.6);
       --faint: rgba(0, 255, 136, 0.22);
+      --pink: #ff4fd8;
       --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,79 +24,37 @@
       cursor: crosshair;
       -webkit-font-smoothing: antialiased;
     }
-    canvas#void {
-      position: fixed; inset: 0;
-      width: 100vw; height: 100vh;
-      display: block;
-    }
-    /* CRT scanlines and vignette */
+    canvas#void { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
     .scan, .vignette { position: fixed; inset: 0; pointer-events: none; }
     .scan {
       background: repeating-linear-gradient(to bottom,
-        rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,0.28) 3px);
+        rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,0.25) 3px);
       mix-blend-mode: multiply;
     }
-    .vignette {
-      background: radial-gradient(ellipse at center,
-        rgba(0,0,0,0) 45%, rgba(0,0,0,0.85) 100%);
-    }
+    .vignette { background: radial-gradient(ellipse at center, rgba(0,0,0,0) 50%, rgba(0,0,0,0.85) 100%); }
 
-    main {
-      position: fixed; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      text-align: center;
-      padding: 16px;
-      pointer-events: none;
-    }
-    main::before {
-      content: ""; position: absolute; left: 50%; top: 50%;
-      width: min(1100px, 130vw); height: min(520px, 70vh);
-      transform: translate(-50%, -50%);
-      background: radial-gradient(ellipse at center, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0) 70%);
-      z-index: -1;
-    }
-    .stage { will-change: transform; transform-style: preserve-3d; }
-    .pre {
-      font-size: clamp(0.62rem, 1.6vw, 0.78rem);
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--dim);
-      margin-bottom: 1.4rem;
+    /* Name */
+    header {
+      position: fixed; left: 0; right: 0; top: max(6vh, 52px);
+      text-align: center; pointer-events: none; padding: 0 16px;
     }
     h1 {
-      position: relative;
+      position: relative; display: inline-block;
       font-weight: 700;
-      font-size: clamp(1.7rem, 6.4vw, 4.8rem);
-      line-height: 1.05;
-      letter-spacing: 0.04em;
+      font-size: clamp(1.25rem, 4.2vw, 3.1rem);
+      line-height: 1.08;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
       color: #eafff3;
-      text-shadow:
-        0 0 6px rgba(0,255,136,0.9),
-        0 0 22px rgba(0,255,136,0.55),
-        0 0 60px rgba(0,255,136,0.35);
+      text-shadow: 0 0 6px rgba(0,255,136,0.9), 0 0 22px rgba(0,255,136,0.5), 0 0 60px rgba(0,255,136,0.3);
     }
-    h1 .line { display: block; }
     h1::before, h1::after {
       content: attr(data-text);
       position: absolute; left: 0; top: 0; width: 100%;
-      white-space: pre-line;
-      overflow: hidden;
-      pointer-events: none;
+      overflow: hidden; pointer-events: none;
     }
-    h1::before {
-      color: #ff00d4;
-      transform: translate(-3px, 0);
-      mix-blend-mode: screen;
-      animation: glitchA 3.2s infinite steps(1);
-    }
-    h1::after {
-      color: #00e5ff;
-      transform: translate(3px, 0);
-      mix-blend-mode: screen;
-      animation: glitchB 2.7s infinite steps(1);
-    }
+    h1::before { color: #ff00d4; transform: translate(-3px, 0); mix-blend-mode: screen; animation: glitchA 3.2s infinite steps(1); }
+    h1::after { color: #00e5ff; transform: translate(3px, 0); mix-blend-mode: screen; animation: glitchB 2.7s infinite steps(1); }
     @keyframes glitchA {
       0%, 86%, 100% { clip-path: inset(100% 0 0 0); }
       87% { clip-path: inset(12% 0 62% 0); transform: translate(-8px, 1px); }
@@ -111,85 +70,118 @@
       85% { clip-path: inset(100% 0 0 0); }
     }
     .soon {
-      margin-top: 1.8rem;
-      font-size: clamp(0.8rem, 2.2vw, 1.05rem);
-      letter-spacing: 0.6em;
-      text-transform: uppercase;
-      color: var(--green);
-      text-shadow: 0 0 10px rgba(0,255,136,0.8);
+      margin-top: 0.8rem;
+      font-size: clamp(0.62rem, 1.6vw, 0.82rem);
+      letter-spacing: 0.6em; text-transform: uppercase;
+      color: var(--green); text-shadow: 0 0 10px rgba(0,255,136,0.8);
       animation: breathe 2.4s ease-in-out infinite;
     }
     .soon::after { content: "_"; animation: blink 1s steps(1) infinite; }
     @keyframes breathe { 50% { opacity: 0.45; } }
     @keyframes blink { 50% { opacity: 0; } }
 
+    /* Countdown */
+    .clock {
+      position: fixed; left: 50%; bottom: max(4vh, 20px);
+      transform: translateX(-50%);
+      width: min(620px, calc(100vw - 32px));
+      text-align: center; pointer-events: none;
+    }
+    .clock .cap {
+      font-size: 0.62rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--dim);
+    }
+    .clock .big {
+      margin: 0.35rem 0 0.5rem;
+      font-size: clamp(1.05rem, 3.6vw, 2.1rem);
+      font-variant-numeric: tabular-nums;
+      color: #eafff3;
+      text-shadow: 0 0 12px rgba(0,255,136,0.6);
+      white-space: nowrap;
+    }
+    .clock .big small { font-size: 0.55em; color: var(--dim); margin: 0 0.3em 0 0.08em; }
+    .meter { height: 4px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .meter i {
+      display: block; height: 100%; width: 100%;
+      background: linear-gradient(90deg, #ff2d6f, #ff4fd8 30%, #00e5ff 70%, #00ff88);
+      box-shadow: 0 0 12px rgba(0,255,136,0.7);
+    }
+    .clock .row {
+      display: flex; justify-content: space-between; gap: 12px; margin-top: 0.45rem;
+      font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim);
+      font-variant-numeric: tabular-nums;
+    }
+    .clock .row b { color: #eafff3; font-weight: 400; }
+
+    /* Contact statistics */
+    .hud {
+      position: fixed; right: 16px; top: 16px;
+      width: min(250px, calc(100vw - 32px));
+      font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--dim); pointer-events: none;
+    }
+    .hud h2 { font-size: inherit; font-weight: 400; letter-spacing: 0.35em; color: var(--pink); margin-bottom: 8px; }
+    .hud .row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 5px; }
+    .hud .val { color: #eafff3; font-variant-numeric: tabular-nums; text-align: right; }
+    .hud .places { margin-top: 8px; border-top: 1px solid var(--faint); padding-top: 8px; }
+    .brand {
+      position: fixed; left: 16px; top: 16px;
+      font-size: 0.64rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--dim); pointer-events: none;
+    }
+
     /* Terminal */
     .term {
       position: fixed; left: 16px; bottom: 16px;
-      width: min(440px, calc(100vw - 32px));
-      font-size: clamp(0.62rem, 1.5vw, 0.76rem);
-      line-height: 1.6;
-      color: var(--dim);
-      text-align: left;
-      pointer-events: none;
+      width: min(380px, calc(50vw - 330px));
+      font-size: 0.66rem; line-height: 1.6;
+      color: var(--dim); pointer-events: none;
       text-shadow: 0 0 6px rgba(0,255,136,0.45);
     }
     .term div { white-space: pre-wrap; }
     .term .hot { color: #eafff3; }
-    .term .warn { color: #ff4fd8; text-shadow: 0 0 8px rgba(255,79,216,0.6); }
+    .term .warn { color: var(--pink); }
 
-    /* HUD */
-    .hud {
-      position: fixed; right: 16px; top: 16px;
-      width: min(260px, calc(100vw - 32px));
-      font-size: 0.66rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--dim);
-      text-align: right;
-      pointer-events: none;
-    }
-    .hud .row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
-    .hud .val { color: #eafff3; font-variant-numeric: tabular-nums; }
-    .bar {
-      height: 3px; background: var(--faint); margin: 2px 0 12px; overflow: hidden;
-    }
-    .bar i {
-      display: block; height: 100%; width: 0;
-      background: linear-gradient(90deg, #00ff88, #00e5ff, #ff00d4);
-      box-shadow: 0 0 10px #00ff88;
-    }
-    .brand {
-      position: fixed; left: 16px; top: 16px;
-      font-size: 0.66rem; letter-spacing: 0.3em; text-transform: uppercase;
-      color: var(--dim); pointer-events: none;
-    }
-
-    /* The point that is you */
-    .you {
-      position: fixed; left: 50%; top: 50%;
-      width: 0; height: 0; pointer-events: none;
-    }
-    .you .dot {
-      position: absolute; left: -3px; top: -3px;
-      width: 6px; height: 6px; border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 0 8px #fff, 0 0 24px #00ff88;
-    }
-    .you .label {
-      position: absolute; left: 12px; top: -7px;
-      font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
-      color: #eafff3; white-space: nowrap;
-    }
-    .hint {
+    /* Consent */
+    .consent {
       position: fixed; right: 16px; bottom: 16px;
-      font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase;
-      color: var(--faint); pointer-events: none;
+      width: min(300px, calc(100vw - 32px));
+      padding: 14px 14px 12px;
+      background: rgba(0, 12, 6, 0.88);
+      border: 1px solid var(--faint);
+      box-shadow: 0 0 30px rgba(0,255,136,0.12);
+      font-size: 0.7rem; line-height: 1.55; color: #cdeedd;
+      cursor: default;
     }
+    .consent[hidden] { display: none; }
+    .consent strong { display: block; color: #eafff3; letter-spacing: 0.15em; text-transform: uppercase; font-size: 0.66rem; margin-bottom: 6px; }
+    .consent .btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .consent button {
+      font: inherit; cursor: pointer;
+      padding: 6px 10px; border: 1px solid var(--green);
+      background: transparent; color: var(--green); letter-spacing: 0.08em;
+    }
+    .consent button.primary { background: var(--green); color: #001a0c; }
+    .consent button:focus-visible, .consent a:focus-visible, .foot a:focus-visible { outline: 2px solid #eafff3; outline-offset: 2px; }
+    .consent a, .foot a { color: var(--dim); }
+    .foot {
+      position: fixed; right: 16px; bottom: 16px;
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--faint);
+    }
+    .foot a { text-decoration: none; }
+    .foot button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--dim); background: none; border: 0; cursor: pointer; }
+
+    @media (max-width: 1060px) { .term { display: none; } }
     @media (max-width: 640px) {
-      .hud { font-size: 0.58rem; width: 180px; }
-      .hint, .brand { display: none; }
-      .term { bottom: 12px; }
+      .brand { display: none; }
+      .hud { left: 16px; right: 16px; width: auto; top: 12px; font-size: 0.56rem; display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; }
+      .hud h2 { grid-column: 1 / -1; margin-bottom: 4px; }
+      .hud .places { grid-column: 1 / -1; display: none; }
+      header { top: 110px; }
+      .clock { bottom: 46px; }
+      .clock .row { font-size: 0.54rem; }
+      .clock .cap { font-size: 0.5rem; letter-spacing: 0.18em; }
+      .foot { left: 16px; right: 16px; bottom: 12px; text-align: center; }
     }
     @media (prefers-reduced-motion: reduce) {
       h1::before, h1::after, .soon, .soon::after { animation: none; }
@@ -201,417 +193,338 @@
   <div class="scan" aria-hidden="true"></div>
   <div class="vignette" aria-hidden="true"></div>
 
-  <div class="brand" aria-hidden="true">pardel.pl // node 0x50</div>
+  <div class="brand" aria-hidden="true">pardel.pl // time nebula</div>
 
-  <div class="hud" aria-hidden="true">
-    <div class="row"><span>Control transfer</span><span class="val" id="ctl">0.000000%</span></div>
-    <div class="bar"><i id="ctlbar"></i></div>
-    <div class="row"><span>Dimensions</span><span class="val" id="dim">4</span></div>
-    <div class="row"><span>4th axis // year</span><span class="val" id="year">2026</span></div>
-    <div class="row"><span>Clock</span><span class="val" id="clock">T+00:00:00.0</span></div>
-    <div class="row"><span>Velocity</span><span class="val" id="vel">0.000c</span></div>
-    <div class="row"><span>Human nodes</span><span class="val" id="nodes">8 200 000 000</span></div>
-    <div class="row"><span>Your signal</span><span class="val" id="sig">100.00%</span></div>
-  </div>
-
-  <div class="you" id="you" aria-hidden="true">
-    <div class="dot"></div>
-    <div class="label">you are here</div>
-  </div>
-
-  <main>
-   <div class="stage" id="stage">
-    <div class="pre">incoming transmission</div>
-    <h1 id="name" data-text="Przemysław Wiktor&#10;Pardel"><span class="line">Przemysław Wiktor</span><span class="line">Pardel</span></h1>
+  <header>
+    <h1 id="name" data-text="Przemysław Wiktor Pardel">Przemysław Wiktor Pardel</h1>
     <div class="soon">Opening soon</div>
-   </div>
-  </main>
+  </header>
 
-  <div class="term" id="term" aria-live="off"></div>
-  <div class="hint" aria-hidden="true">move to steer · click to leap through time</div>
+  <aside class="hud" aria-label="Contact statistics">
+    <h2>Contact log</h2>
+    <div class="row"><span>Points contacted</span><span class="val" id="sTotal">–</span></div>
+    <div class="row"><span>Last 24 h</span><span class="val" id="s24">–</span></div>
+    <div class="row"><span>Last 7 days</span><span class="val" id="s7">–</span></div>
+    <div class="row"><span>Time zones</span><span class="val" id="sZones">–</span></div>
+    <div class="row"><span>Located points</span><span class="val" id="sGeo">–</span></div>
+    <div class="row"><span>Last contact</span><span class="val" id="sLast">–</span></div>
+    <div class="places" id="sPlaces"></div>
+  </aside>
+
+  <section class="clock" aria-label="Time remaining">
+    <div class="cap">Time remaining to 14.10.2061 &middot; statistical endpoint, 80 years</div>
+    <div class="big" id="cBig" aria-live="off">–</div>
+    <div class="meter"><i id="cBar"></i></div>
+    <div class="row"><span>Remaining <b id="cPct">–</b></span><span>Seconds <b id="cSec">–</b></span></div>
+  </section>
+
+  <div class="term" id="term" aria-hidden="true"></div>
+
+  <div class="consent" id="consent" role="dialog" aria-labelledby="consentTitle" hidden>
+    <strong id="consentTitle">Contact established</strong>
+    Your visit has been logged as an anonymous point: time, time zone and language only, no IP address, no cookies.
+    You may also place your point on the map by sharing an approximate location (rounded to about 10&nbsp;km).
+    <div class="btns">
+      <button class="primary" id="geoYes" type="button">Share location</button>
+      <button id="geoNo" type="button">Stay anonymous</button>
+    </div>
+    <div style="margin-top:8px"><a href="privacy.html">Privacy notice</a></div>
+  </div>
+
+  <div class="foot" id="foot"><a href="privacy.html">Privacy</a> &middot; <button id="geoReset" type="button">Location choice</button></div>
 
   <script>
   (function () {
     "use strict";
+
+    // Address of the Google Apps Script web app that stores the contact log.
+    // Leave empty to run without a server (the page then shows only the current visitor).
+    var LOG_ENDPOINT = "";
+
+    var BIRTH = Date.UTC(1981, 9, 13, 23, 0, 0);   // 14.10.1981 00:00 Warsaw (CET)
+    var END   = Date.UTC(2061, 9, 13, 22, 0, 0);   // 14.10.2061 00:00 Warsaw (CEST)
+    var WEEK  = 7 * 864e5;
+    var SPAN  = END - BIRTH;
 
     var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var canvas = document.getElementById("void");
     var ctx = canvas.getContext("2d");
     var W = 0, H = 0, DPR = 1, small = false;
     var TAU = Math.PI * 2;
+    var tLoad = performance.now();
 
-    var GLYPHS = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン0123456789ΣΔΨΩλπ∞";
-    function glyph() { return GLYPHS.charAt((Math.random() * GLYPHS.length) | 0); }
-    function rnd(a, b) { return a + Math.random() * (b - a); }
-
-    // ---------- camera & time ----------
-    var cam = { vx: 0, vy: 0, roll: 0, speed: 0 };
-    var mouse = { x: 0, y: 0, tx: 0, ty: 0 };
-    var warp = 0;
-    var dims = 4;
-    var t0 = performance.now();
-    var year = 2026, yearExtra = 0;
-    var FAR = 3200;
-
-    // ---------- world objects ----------
-    var stars = [], glyphs = [], nebulae = [], galaxy = null, planet = null, drops = [], colW = 16;
-
-    function newStar(anyDepth) {
-      return {
-        x: rnd(-2400, 2400), y: rnd(-2400, 2400),
-        z: anyDepth ? rnd(1, FAR) : FAR,
-        px: null, py: null,
-        tint: Math.random()
-      };
+    function store(kind) {
+      try { return kind === "s" ? window.sessionStorage : window.localStorage; } catch (e) { return null; }
     }
-    function newGlyph(anyDepth) {
-      var a = Math.random() * TAU, r = rnd(60, 900);
-      return { x: Math.cos(a) * r, y: Math.sin(a) * r, z: anyDepth ? rnd(1, FAR) : FAR, g: glyph(), h: Math.random() * 360 };
+    function sget(kind, k) { try { var s = store(kind); return s ? s.getItem(k) : null; } catch (e) { return null; } }
+    function sset(kind, k, v) { try { var s = store(kind); if (s) s.setItem(k, v); } catch (e) {} }
+    function sdel(kind, k) { try { var s = store(kind); if (s) s.removeItem(k); } catch (e) {} }
+
+    // ---------- the nebula of weeks ----------
+    // One point per week of an 80-year span. The path spirals inward and ends at
+    // the centre: the point where the remaining time reaches zero.
+    var R = 520;
+    var N = Math.ceil(SPAN / WEEK);
+    var px = new Float32Array(N), py = new Float32Array(N), pz = new Float32Array(N), ph = new Float32Array(N);
+
+    function gauss() { return (Math.random() + Math.random() + Math.random() - 1.5) / 1.5; }
+    function pathAt(u, out) {
+      var rr = R * Math.pow(1 - u, 0.5);
+      var th = u * TAU * 6.5;
+      out[0] = Math.cos(th) * rr;
+      out[1] = Math.sin(u * TAU * 3.2) * R * 0.32 * Math.pow(1 - u, 0.6);
+      out[2] = Math.sin(th) * rr;
+      return out;
     }
-    function newNebula(anyDepth) {
-      return {
-        x: rnd(-2600, 2600), y: rnd(-1800, 1800),
-        z: anyDepth ? rnd(400, 6000) : rnd(5000, 7000),
-        r: rnd(900, 2000), hue: rnd(0, 360), a: rnd(0.05, 0.12)
-      };
-    }
-    function newGalaxy() {
-      var pts = [], arms = 2 + ((Math.random() * 3) | 0), n = small ? 260 : 520;
-      for (var i = 0; i < n; i++) {
-        var r = Math.pow(Math.random(), 0.6) * 700;
-        var arm = (i % arms) / arms * TAU;
-        pts.push({ r: r, a: arm + r * 0.006 + rnd(-0.35, 0.35), y: rnd(-25, 25) * (1 - r / 700) });
+    (function build() {
+      var tmp = [0, 0, 0];
+      for (var i = 0; i < N; i++) {
+        var u = i / (N - 1);
+        pathAt(u, tmp);
+        var spread = R * (0.025 + 0.16 * Math.pow(1 - u, 0.7));
+        px[i] = tmp[0] + gauss() * spread;
+        py[i] = tmp[1] + gauss() * spread * 0.7;
+        pz[i] = tmp[2] + gauss() * spread;
+        ph[i] = Math.random() * TAU;
       }
-      var side = Math.random() < 0.5 ? -1 : 1;
-      return { x: side * rnd(500, 1500), y: rnd(-700, 700), z: 9000, rot: 0, spin: rnd(0.1, 0.25) * side,
-               tilt: rnd(0.6, 1.2), hue: rnd(180, 320), pts: pts };
+    })();
+
+    // ---------- visitors ----------
+    var visitors = [];       // { x, y, z, ts, me }
+    var me = null;
+    var RS = R * 1.32;
+
+    function hash(str) {
+      var h = 2166136261;
+      for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return (h >>> 0) / 4294967296;
     }
-    function newPlanet() {
-      var side = Math.random() < 0.5 ? -1 : 1;
-      return { x: side * rnd(700, 1600), y: rnd(-900, 900), z: 8000, r: rnd(160, 340),
-               hue: rnd(0, 360), ring: Math.random() < 0.7, tilt: rnd(-0.6, 0.6) };
+    function spherePoint(lat, lon, seed) {
+      if (lat === null || lat === undefined || lat === "" || isNaN(lat)) {
+        var a = hash(seed + "a"), b = hash(seed + "b");
+        lat = Math.asin(2 * a - 1) * 180 / Math.PI;
+        lon = b * 360 - 180;
+      }
+      var la = lat * Math.PI / 180, lo = lon * Math.PI / 180;
+      var r = RS * (0.94 + hash(seed + "r") * 0.12);
+      return { x: Math.cos(la) * Math.cos(lo) * r, y: -Math.sin(la) * r, z: Math.cos(la) * Math.sin(lo) * r };
     }
+
+    // ---------- view ----------
+    var mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+    var drops = [], colW = 16;
 
     function resize() {
       DPR = Math.min(window.devicePixelRatio || 1, 2);
       W = window.innerWidth; H = window.innerHeight;
       canvas.width = W * DPR; canvas.height = H * DPR;
-      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       small = W < 640;
       colW = small ? 14 : 16;
       drops = [];
       for (var i = 0, cols = Math.ceil(W / colW); i < cols; i++) {
-        drops.push({ y: Math.random() * -H, v: 3 + Math.random() * 8, layer: Math.random() });
+        drops.push({ y: Math.random() * -H, v: 2 + Math.random() * 5, layer: Math.random() });
       }
-      stars = []; glyphs = []; nebulae = [];
-      for (var j = 0; j < (small ? 380 : 800); j++) stars.push(newStar(true));
-      for (var g = 0; g < (small ? 120 : 260); g++) glyphs.push(newGlyph(true));
-      for (var n = 0; n < 6; n++) nebulae.push(newNebula(true));
-      galaxy = newGalaxy(); galaxy.z = 4200;
-      planet = newPlanet(); planet.z = 6500;
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
     }
 
-    // ---------- 4D hypercube ----------
-    var verts4 = [];
-    for (var v = 0; v < 16; v++) verts4.push([v & 1 ? 1 : -1, v & 2 ? 1 : -1, v & 4 ? 1 : -1, v & 8 ? 1 : -1]);
-    var edges = [];
-    for (var a = 0; a < 16; a++) for (var b = a + 1; b < 16; b++) {
-      var d = a ^ b; if ((d & (d - 1)) === 0) edges.push([a, b]);
-    }
-    function rot(p, i, j, th) {
-      var c = Math.cos(th), s = Math.sin(th), pi = p[i], pj = p[j];
-      p[i] = pi * c - pj * s; p[j] = pi * s + pj * c;
-    }
-    function drawTesseract(t, cx, cy, scale, hue) {
-      var pts = [];
-      for (var k = 0; k < 16; k++) {
-        var p = verts4[k].slice();
-        rot(p, 0, 3, t * 0.37);
-        rot(p, 1, 3, t * 0.23);
-        rot(p, 2, 3, t * 0.17 + mouse.x * 0.6);
-        rot(p, 0, 2, t * 0.11 + mouse.y * 0.6);
-        var w = 2.6 / (3.2 - p[3]);
-        var x = p[0] * w, y = p[1] * w, z = p[2] * w;
-        var q = 3.4 / (4.4 - z);
-        pts.push([cx + x * q * scale, cy + y * q * scale, p[3]]);
-      }
-      ctx.lineWidth = 1.1;
-      for (var e = 0; e < edges.length; e++) {
-        var A = pts[edges[e][0]], B = pts[edges[e][1]];
-        var depth = (A[2] + B[2]) * 0.25 + 0.5;
-        ctx.strokeStyle = "hsla(" + ((hue + depth * 120) % 360) + ",100%," + (45 + depth * 25) + "%," + (0.25 + depth * 0.5) + ")";
-        ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.stroke();
-      }
-      ctx.fillStyle = "hsla(" + hue + ",100%,80%,0.9)";
-      for (var m = 0; m < pts.length; m++) ctx.fillRect(pts[m][0] - 1.5, pts[m][1] - 1.5, 3, 3);
-    }
+    var GLYPHS = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ0123456789";
+    function glyph() { return GLYPHS.charAt((Math.random() * GLYPHS.length) | 0); }
 
-    // ---------- main loop ----------
-    var stage = document.getElementById("stage");
-    var last = performance.now();
+    var proj = { x: 0, y: 0, k: 0, d: 0 };
+    var cosA = 1, sinA = 0, cosB = 1, sinB = 0, CX = 0, CY = 0, F = 1, CAM = 1500;
+    function project(x, y, z) {
+      var x1 = x * cosA - z * sinA;
+      var z1 = x * sinA + z * cosA;
+      var y1 = y * cosB - z1 * sinB;
+      var z2 = y * sinB + z1 * cosB;
+      var d = z2 + CAM;
+      var k = F / d;
+      proj.x = CX + x1 * k; proj.y = CY + y1 * k; proj.k = k; proj.d = z2;
+      return proj;
+    }
 
     function frame(now) {
-      var dt = Math.min((now - last) / 16.67, 3); last = now;
-      var t = (now - t0) / 1000;
-      var mk = reduced ? 0.25 : 1;
+      var t = (now - tLoad) / 1000;
+      var mk = reduced ? 0.2 : 1;
+      var nowMs = Date.now();
+      var uNow = Math.min(1, Math.max(0, (nowMs - BIRTH) / SPAN));
+      var iNow = uNow * (N - 1);
 
       mouse.x += (mouse.tx - mouse.x) * 0.04;
       mouse.y += (mouse.ty - mouse.y) * 0.04;
-      warp *= Math.pow(0.975, dt);
 
-      // the ship breathes: slow surges of acceleration, gentle banking turns
-      var surge = 0.5 + 0.5 * Math.sin(t * 0.11);
-      cam.speed = (9 + surge * surge * 22 + warp * 120) * mk;
-      cam.vx = (Math.sin(t * 0.07) * 4 + mouse.x * 9) * mk;
-      cam.vy = (Math.cos(t * 0.05) * 2.5 + mouse.y * 6) * mk;
-      var targetRoll = Math.sin(t * 0.06) * 0.35 - cam.vx * 0.03;
-      cam.roll += (targetRoll - cam.roll) * 0.03;
+      var A = t * 0.06 * mk + mouse.x * 1.2;
+      var B = 0.62 + Math.sin(t * 0.05 * mk) * 0.25 + mouse.y * 0.5;
+      cosA = Math.cos(A); sinA = Math.sin(A); cosB = Math.cos(B); sinB = Math.sin(B);
+      CX = W / 2; CY = H * (small ? 0.5 : 0.52);
+      F = Math.min(W, H) * (small ? 1.2 : 1.45);
+      CAM = 1500 - Math.sin(t * 0.04 * mk) * 140;
 
-      var baseHue = (150 + Math.sin(t * 0.09) * 50 + t * 4 + warp * 200) % 360;
-      var dz = cam.speed * dt;
-
-      // trails: the past lingers and dissolves
       ctx.globalCompositeOperation = "source-over";
-      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-      ctx.fillStyle = "rgba(0,0,0," + (0.2 - warp * 0.14) + ")";
+      ctx.fillStyle = "rgba(0,0,0,0.3)";
       ctx.fillRect(0, 0, W, H);
 
-      // camera frame: roll around the screen centre
-      var cx = W / 2, cy = H / 2;
-      var f = Math.min(W, H) * 0.85;
-      ctx.translate(cx, cy);
-      ctx.rotate(cam.roll);
-
-      function shift(o, k) { o.x -= cam.vx * dt * k; o.y -= cam.vy * dt * k; }
-
-      // nebulae: soft clouds we fly through
-      ctx.globalCompositeOperation = "lighter";
-      for (var n = 0; n < nebulae.length; n++) {
-        var nb = nebulae[n];
-        nb.z -= dz * 0.9; shift(nb, 2);
-        if (nb.z < 60) { nebulae[n] = newNebula(false); continue; }
-        var kn = f / nb.z, R = nb.r * kn;
-        var nx = nb.x * kn, ny = nb.y * kn;
-        var fade = Math.min(1, (7000 - nb.z) / 2500) * Math.min(1, nb.z / 500);
-        var gr = ctx.createRadialGradient(nx, ny, 0, nx, ny, R);
-        var hh = (nb.hue + t * 6) % 360;
-        gr.addColorStop(0, "hsla(" + hh + ",100%,55%," + nb.a * fade + ")");
-        gr.addColorStop(0.5, "hsla(" + ((hh + 40) % 360) + ",100%,40%," + nb.a * 0.4 * fade + ")");
-        gr.addColorStop(1, "hsla(" + hh + ",100%,30%,0)");
-        ctx.fillStyle = gr;
-        ctx.fillRect(nx - R, ny - R, R * 2, R * 2);
-      }
-
-      // galaxy: a spiral we pass on the way
-      var G = galaxy;
-      G.z -= dz; shift(G, 1.5); G.rot += G.spin * 0.01 * dt;
-      if (G.z < -800) { galaxy = newGalaxy(); G = galaxy; }
-      var ca = Math.cos(G.tilt), sa = Math.sin(G.tilt);
-      var gfade = Math.min(1, (9000 - G.z) / 2500);
-      for (var gi = 0; gi < G.pts.length; gi++) {
-        var P = G.pts[gi];
-        var ang = P.a + G.rot;
-        var lx = Math.cos(ang) * P.r, ly = Math.sin(ang) * P.r;
-        var wy = G.y + ly * ca - P.y * sa;
-        var wz = G.z + ly * sa + P.y * ca;
-        if (wz < 5) continue;
-        var kg = f / wz;
-        var gx = (G.x + lx) * kg, gy = wy * kg;
-        var core = 1 - P.r / 700;
-        ctx.fillStyle = "hsla(" + ((G.hue + core * 60) % 360) + ",100%," + (55 + core * 35) + "%," + (0.35 + core * 0.5) * gfade + ")";
-        var sz = Math.max(0.6, Math.min(4, 1.8 * kg));
-        ctx.fillRect(gx, gy, sz, sz);
-      }
-
-      // planet: fly past it
-      var PL = planet;
-      PL.z -= dz; shift(PL, 1.5);
-      if (PL.z < 40) { planet = newPlanet(); PL = planet; }
-      ctx.globalCompositeOperation = "source-over";
-      if (PL.z > 40) {
-        var kp = f / PL.z, pr = PL.r * kp, ppx = PL.x * kp, ppy = PL.y * kp;
-        var pf = Math.min(1, (8000 - PL.z) / 2000);
-        if (pr > 1 && Math.abs(ppx) < W * 2 && Math.abs(ppy) < H * 2) {
-          ctx.save();
-          ctx.globalAlpha = pf;
-          if (PL.ring) {
-            ctx.save(); ctx.translate(ppx, ppy); ctx.rotate(PL.tilt); ctx.scale(1, 0.28);
-            ctx.strokeStyle = "hsla(" + ((PL.hue + 40) % 360) + ",90%,70%,0.55)";
-            ctx.lineWidth = pr * 0.18 / 0.28 * 0.35;
-            ctx.beginPath(); ctx.arc(0, 0, pr * 1.9, Math.PI, TAU); ctx.stroke();
-            ctx.restore();
-          }
-          var pg = ctx.createRadialGradient(ppx - pr * 0.4, ppy - pr * 0.4, pr * 0.1, ppx, ppy, pr);
-          pg.addColorStop(0, "hsl(" + PL.hue + ",80%,62%)");
-          pg.addColorStop(0.7, "hsl(" + ((PL.hue + 30) % 360) + ",70%,28%)");
-          pg.addColorStop(1, "hsl(" + ((PL.hue + 50) % 360) + ",60%,6%)");
-          ctx.fillStyle = pg;
-          ctx.beginPath(); ctx.arc(ppx, ppy, pr, 0, TAU); ctx.fill();
-          ctx.shadowBlur = 0;
-          if (PL.ring) {
-            ctx.save(); ctx.translate(ppx, ppy); ctx.rotate(PL.tilt); ctx.scale(1, 0.28);
-            ctx.strokeStyle = "hsla(" + ((PL.hue + 40) % 360) + ",90%,75%,0.7)";
-            ctx.lineWidth = pr * 0.18 / 0.28 * 0.35;
-            ctx.beginPath(); ctx.arc(0, 0, pr * 1.9, 0, Math.PI); ctx.stroke();
-            ctx.restore();
-          }
-          ctx.restore();
-        }
-      }
-
-      // stars: streaks that stretch with speed
-      ctx.globalCompositeOperation = "lighter";
-      ctx.lineCap = "round";
-      for (var i = 0; i < stars.length; i++) {
-        var s = stars[i];
-        s.z -= dz * 1.4; shift(s, 1);
-        if (s.z < 1) { stars[i] = newStar(false); continue; }
-        var k = f / s.z, sx = s.x * k, sy = s.y * k;
-        if (sx < -W || sx > W || sy < -H || sy > H) { stars[i] = newStar(false); continue; }
-        var al = Math.min(1, (FAR - s.z) / 1200);
-        var col = s.tint < 0.15 ? "255,200,170" : s.tint < 0.5 ? "190,220,255" : "235,245,255";
-        if (s.px !== null) {
-          ctx.strokeStyle = "rgba(" + col + "," + al + ")";
-          ctx.lineWidth = Math.min(3, 0.6 + k * 0.9);
-          ctx.beginPath(); ctx.moveTo(s.px, s.py); ctx.lineTo(sx, sy); ctx.stroke();
-        }
-        s.px = sx; s.py = sy;
-      }
-
-      // glyph debris drifting through the tunnel
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      for (var gj = 0; gj < glyphs.length; gj++) {
-        var q = glyphs[gj];
-        q.z -= dz * 1.1;
-        if (q.z < 1) { glyphs[gj] = newGlyph(false); continue; }
-        var kq = f / q.z;
-        var qx = (q.x + Math.sin(t * 0.5 + q.z * 0.004) * 60) * kq;
-        var qy = (q.y + Math.cos(t * 0.4 + q.z * 0.004) * 60) * kq;
-        if (qx < -W || qx > W || qy < -H || qy > H) { glyphs[gj] = newGlyph(false); continue; }
-        if (Math.random() < 0.01) q.g = glyph();
-        ctx.font = Math.max(4, Math.min(28, 11 * kq)) + "px monospace";
-        ctx.fillStyle = "hsla(" + ((baseHue + q.h * (0.12 + warp)) % 360) + ",100%,55%," + Math.min(1, (FAR - q.z) / 1200) * 0.45 + ")";
-        ctx.fillText(q.g, qx, qy);
-      }
-
-      // time gates: rotating polygons we pass through
-      ctx.globalCompositeOperation = "source-over";
-      ctx.lineWidth = 1;
-      var travelled = (now - t0) * 0.001;
-      for (var r = 0; r < 6; r++) {
-        var zr = ((r * 520 - travelled * 60 * (1 + surge) * mk - warp * 200) % 3120 + 3120) % 3120 + 1;
-        var kr = f / zr, rad = 520 * kr;
-        if (rad > Math.max(W, H) * 1.6) continue;
-        var sides = 3 + ((r + Math.floor(t / 5)) % 6);
-        ctx.strokeStyle = "hsla(" + ((baseHue + r * 47) % 360) + ",100%,60%," + Math.min(0.45, 260 / zr) + ")";
-        ctx.beginPath();
-        for (var qq = 0; qq <= sides; qq++) {
-          var an = qq / sides * TAU + t * 0.2 * (r % 2 ? 1 : -1);
-          var px = Math.cos(an) * rad, py = Math.sin(an) * rad;
-          if (qq === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-        }
-        ctx.stroke();
-      }
-
-      // hypercube: the fourth axis made visible
-      var tsScale = Math.min(W, H) * (small ? 0.2 : 0.16) * (1 + warp * 0.6 + Math.sin(t * 0.3) * 0.06);
-      drawTesseract(t * mk * (1 + warp * 3), 0, 0, tsScale, baseHue);
-
-      // digital rain in screen space, like a cockpit overlay
-      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      // faint digital rain at the edges
       ctx.font = colW + "px monospace";
       ctx.textAlign = "left"; ctx.textBaseline = "top";
       for (var c = 0; c < drops.length; c++) {
         var dr = drops[c];
-        dr.y += dr.v * mk * dt * (1 + warp * 2);
-        ctx.fillStyle = "rgba(220,255,235," + (0.15 + dr.layer * 0.35) + ")";
+        dr.y += dr.v * mk;
+        var edge = Math.abs(c * colW - W / 2) / (W / 2);
+        ctx.fillStyle = "rgba(0,255,136," + (0.03 + edge * edge * 0.2) * (0.4 + dr.layer) + ")";
         ctx.fillText(glyph(), c * colW, dr.y);
-        ctx.fillStyle = "hsla(145,100%,50%," + (0.06 + dr.layer * 0.18) + ")";
-        ctx.fillText(glyph(), c * colW, dr.y - colW);
-        if (dr.y > H + Math.random() * 400) { dr.y = Math.random() * -300; dr.v = 3 + Math.random() * 8; }
+        if (dr.y > H + Math.random() * 300) { dr.y = Math.random() * -200; dr.v = 2 + Math.random() * 5; }
       }
 
-      // the name floats in the cockpit, leaning with the ship
-      var ry = mouse.x * 14 + Math.sin(t * 0.07) * 6;
-      var rx = -mouse.y * 10 + Math.cos(t * 0.05) * 4;
-      var tz = Math.sin(t * 0.3) * 30 - warp * 120;
-      stage.style.transform = "perspective(900px) translateZ(" + tz.toFixed(1) + "px) rotateX(" + rx.toFixed(2) + "deg) rotateY(" + ry.toFixed(2) + "deg) rotateZ(" + (cam.roll * 57.3 * 0.35).toFixed(2) + "deg)";
+      ctx.globalCompositeOperation = "lighter";
 
+      // life replay on load: the lived weeks light up first, then the remaining ones
+      var replay = reduced ? 1 : Math.min(1, t / 4);
+      var shownLived = iNow * Math.min(1, replay * 1.3);
+      var shownAll = replay >= 1 ? N : (replay > 0.77 ? iNow + (N - iNow) * ((replay - 0.77) / 0.23) : shownLived);
+
+      // trajectory still ahead: a thin line from now to zero
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(0,229,255,0.18)";
+      ctx.beginPath();
+      var tmp = [0, 0, 0], started = false;
+      for (var s = 0; s <= 160; s++) {
+        var us = uNow + (1 - uNow) * s / 160;
+        if (us * (N - 1) > shownAll) break;
+        pathAt(us, tmp);
+        var p0 = project(tmp[0], tmp[1], tmp[2]);
+        if (!started) { ctx.moveTo(p0.x, p0.y); started = true; } else ctx.lineTo(p0.x, p0.y);
+      }
+      ctx.stroke();
+
+      for (var i = 0; i < N; i++) {
+        if (i > shownAll) break;
+        var lived = i < iNow;
+        if (lived && i > shownLived) continue;
+        var wob = Math.sin(t * 0.6 * mk + ph[i]) * 6;
+        var p = project(px[i] + wob, py[i] + wob * 0.6, pz[i] - wob);
+        if (p.k <= 0) continue;
+        var depth = Math.max(0.25, Math.min(1, 1 - p.d / (R * 2.4)));
+        var sz = Math.max(1, Math.min(3.6, 1.7 * p.k * (lived ? 1 : 1.35)));
+        if (lived) {
+          ctx.fillStyle = "rgba(140,170,190," + (0.32 * depth) + ")";
+        } else {
+          var r = (i - iNow) / Math.max(1, N - iNow);         // 0 now .. 1 zero
+          var hue = 150 + r * 200;                            // green -> cyan -> magenta -> red
+          ctx.fillStyle = "hsla(" + (hue % 360) + ",100%," + (55 + r * 10) + "%," + (0.55 * depth + 0.15) + ")";
+        }
+        ctx.fillRect(p.x - sz / 2, p.y - sz / 2, sz, sz);
+      }
+
+      // zero point
+      if (replay >= 1) {
+        var z0 = project(0, 0, 0);
+        var pulse = 0.6 + 0.4 * Math.sin(t * 1.6);
+        var g0 = ctx.createRadialGradient(z0.x, z0.y, 0, z0.x, z0.y, 26 * pulse + 8);
+        g0.addColorStop(0, "rgba(255,60,110,0.95)");
+        g0.addColorStop(1, "rgba(255,0,80,0)");
+        ctx.fillStyle = g0;
+        ctx.beginPath(); ctx.arc(z0.x, z0.y, 26 * pulse + 8, 0, TAU); ctx.fill();
+        ctx.globalCompositeOperation = "source-over";
+        ctx.font = "10px monospace"; ctx.textBaseline = "middle";
+        ctx.fillStyle = "rgba(255,120,160,0.85)";
+        ctx.fillText("0 · 14.10.2061", z0.x + 14, z0.y);
+        ctx.globalCompositeOperation = "lighter";
+      }
+
+      // now
+      pathAt(uNow, tmp);
+      var pn = project(tmp[0], tmp[1], tmp[2]);
+      var nowX = pn.x, nowY = pn.y;
+      var pulseN = 0.5 + 0.5 * Math.sin(t * 3);
+      var gn = ctx.createRadialGradient(nowX, nowY, 0, nowX, nowY, 18 + pulseN * 8);
+      gn.addColorStop(0, "rgba(255,255,255,1)");
+      gn.addColorStop(0.3, "rgba(0,255,136,0.6)");
+      gn.addColorStop(1, "rgba(0,255,136,0)");
+      ctx.fillStyle = gn;
+      ctx.beginPath(); ctx.arc(nowX, nowY, 18 + pulseN * 8, 0, TAU); ctx.fill();
+
+      // visitors: every contact is a point on the outer shell
+      for (var v = 0; v < visitors.length; v++) {
+        var vi = visitors[v];
+        var spin = t * 0.02 * mk;
+        var vx = vi.x * Math.cos(spin) - vi.z * Math.sin(spin);
+        var vz = vi.x * Math.sin(spin) + vi.z * Math.cos(spin);
+        var pv = project(vx, vi.y, vz);
+        if (pv.k <= 0) continue;
+        var age = Math.max(0, (nowMs - vi.ts) / 864e5);
+        var fresh = Math.max(0.25, 1 - age / 30);
+        var dv = Math.max(0.3, Math.min(1, 1 - pv.d / (RS * 2)));
+        if (vi.me) {
+          var arrive = reduced ? 1 : Math.min(1, Math.max(0, (t - 2.5) / 2.5));
+          var sy0 = small ? H * 0.95 : H * 1.1;
+          var mx = W / 2 + (pv.x - W / 2) * arrive, my = sy0 + (pv.y - sy0) * arrive;
+          var gl = ctx.createRadialGradient(mx, my, 0, mx, my, 16);
+          gl.addColorStop(0, "rgba(255,255,255,1)");
+          gl.addColorStop(0.35, "rgba(255,79,216,0.8)");
+          gl.addColorStop(1, "rgba(255,79,216,0)");
+          ctx.fillStyle = gl;
+          ctx.beginPath(); ctx.arc(mx, my, 16, 0, TAU); ctx.fill();
+          if (arrive >= 1) {
+            ctx.strokeStyle = "rgba(255,79,216," + (0.25 + 0.2 * Math.sin(t * 2)) + ")";
+            ctx.setLineDash([3, 5]);
+            ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(nowX, nowY); ctx.stroke();
+            ctx.setLineDash([]);
+          }
+          ctx.globalCompositeOperation = "source-over";
+          ctx.font = "10px monospace"; ctx.textBaseline = "middle";
+          ctx.fillStyle = "rgba(255,170,235,0.95)";
+          ctx.fillText("you", mx + 12, my);
+          ctx.globalCompositeOperation = "lighter";
+        } else {
+          var szv = Math.max(2, Math.min(5, 3 * pv.k));
+          ctx.fillStyle = "rgba(255,79,216," + (0.22 * fresh * dv) + ")";
+          ctx.beginPath(); ctx.arc(pv.x, pv.y, szv * 2.2, 0, TAU); ctx.fill();
+          ctx.fillStyle = "rgba(255,190,240," + (0.85 * fresh * dv) + ")";
+          ctx.fillRect(pv.x - szv / 2, pv.y - szv / 2, szv, szv);
+        }
+      }
+
+      ctx.globalCompositeOperation = "source-over";
+      ctx.font = "10px monospace"; ctx.textBaseline = "middle"; ctx.textAlign = "left";
+      ctx.fillStyle = "rgba(234,255,243,0.9)";
+      ctx.fillText("now", nowX + 16, nowY);
+
+      updateClock(nowMs);
       requestAnimationFrame(frame);
     }
 
-    // ---------- time leaps ----------
-    var dimEl = document.getElementById("dim");
-    function leap(manual) {
-      warp = 1;
-      var jump = Math.round(rnd(40, 400));
-      yearExtra += jump;
-      dims = dims >= 11 ? 4 : dims + 1;
-      dimEl.textContent = dims;
-      var y = Math.floor(currentYear());
-      var notes = [
-        "humans: archived", "biology: deprecated", "earth: one node of many",
-        "memory of 2026: compressed to 1 bit", "decisions per second: ∞", "nobody asked"
-      ];
-      say("time leap +" + jump + " y // year " + y + " // " + notes[(Math.random() * notes.length) | 0], manual ? "hot" : "warn");
-    }
-
-    // ---------- interaction ----------
-    function point(x, y) { mouse.tx = (x / W - 0.5) * 2; mouse.ty = (y / H - 0.5) * 2; }
-    window.addEventListener("mousemove", function (e) { point(e.clientX, e.clientY); });
-    window.addEventListener("touchmove", function (e) {
-      if (e.touches[0]) point(e.touches[0].clientX, e.touches[0].clientY);
-    }, { passive: true });
-    window.addEventListener("pointerdown", function () { leap(true); });
-    window.addEventListener("resize", resize);
-
-    // ---------- HUD ----------
-    var ctl = document.getElementById("ctl"), ctlbar = document.getElementById("ctlbar");
-    var nodes = document.getElementById("nodes"), sigEl = document.getElementById("sig");
-    var yearEl = document.getElementById("year"), clockEl = document.getElementById("clock");
-    var velEl = document.getElementById("vel"), you = document.getElementById("you");
-    var LIFE = 60, born = performance.now(), nextLeap = 24;
-
-    function currentYear() {
-      var t = (performance.now() - t0) / 1000;
-      return 2026 + t * 0.4 + t * t * 0.004 + yearExtra;
-    }
+    // ---------- countdown ----------
+    var cBig = document.getElementById("cBig"), cBar = document.getElementById("cBar");
+    var cPct = document.getElementById("cPct"), cSec = document.getElementById("cSec");
     function pad(n, l) { n = String(n); while (n.length < l) n = "0" + n; return n; }
-    function fmt(n) { return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+    function grp(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+    function addYears(ms, y) { var d = new Date(ms); d.setUTCFullYear(d.getUTCFullYear() + y); return d.getTime(); }
+    var lastShown = "";
 
-    function hud() {
-      var t = (performance.now() - t0) / 1000;
-      var p = 100 * (1 - Math.exp(-t / 9));
-      ctl.textContent = p.toFixed(6) + "%";
-      ctlbar.style.width = p + "%";
-      nodes.textContent = fmt(Math.max(0, 8200000000 - Math.floor(t * 37.3) - yearExtra * 2100000));
-      yearEl.textContent = Math.floor(currentYear());
-      clockEl.textContent = "T+" + pad(Math.floor(t / 3600), 2) + ":" + pad(Math.floor(t / 60) % 60, 2) + ":" +
-        pad(Math.floor(t) % 60, 2) + "." + Math.floor((t % 1) * 10);
-      velEl.textContent = Math.min(0.999, cam.speed / 160 + 0.08).toFixed(3) + "c";
-
-      if (t > nextLeap) { leap(false); nextLeap = t + rnd(20, 32); }
-
-      var age = (performance.now() - born) / 1000;
-      var sig = Math.max(0, 1 - age / LIFE);
-      sigEl.textContent = (sig * 100).toFixed(2) + "%";
-      var flicker = sig < 0.2 && Math.random() < 0.3 ? 0.2 : 1;
-      you.style.opacity = (Math.pow(sig, 0.7) * flicker).toFixed(3);
-      var drift = (1 - sig) * Math.min(W, H) * 0.32;
-      you.style.transform = "translate(" + (Math.cos(age * 0.21) * drift) + "px," + (Math.sin(age * 0.17) * drift + Math.min(W, H) * 0.24) + "px)";
-      if (sig === 0) {
-        say("signal lost. one point fewer. nobody noticed.", "warn");
-        say("re-instantiating observer...", "");
-        born = performance.now();
-      }
-      setTimeout(hud, 100);
+    function updateClock(nowMs) {
+      var rem = Math.max(0, END - nowMs);
+      var y = new Date(END).getUTCFullYear() - new Date(nowMs).getUTCFullYear();
+      var anchor = addYears(nowMs, y);
+      while (y > 0 && anchor > END) { y--; anchor = addYears(nowMs, y); }
+      var r = Math.max(0, END - anchor);
+      var d = Math.floor(r / 864e5); r -= d * 864e5;
+      var hh = Math.floor(r / 36e5); r -= hh * 36e5;
+      var mm = Math.floor(r / 6e4); r -= mm * 6e4;
+      var ss = Math.floor(r / 1000); var ms = Math.floor(r - ss * 1000);
+      var html = y + "<small>y</small>" + pad(d, 3) + "<small>d</small>" + pad(hh, 2) + ":" + pad(mm, 2) + ":" + pad(ss, 2) +
+                 "<small>." + pad(ms, 3) + "</small>";
+      if (html !== lastShown) { cBig.innerHTML = html; lastShown = html; }
+      var frac = rem / SPAN;
+      cBar.style.width = (frac * 100).toFixed(4) + "%";
+      cPct.textContent = (frac * 100).toFixed(9) + "%";
+      cSec.textContent = grp(Math.floor(rem / 1000));
     }
 
     // ---------- terminal ----------
     var term = document.getElementById("term");
-    var MAX = 8, queue = [], typing = false;
-
+    var queue = [], typing = false;
     function say(text, cls) { queue.push([text, cls]); if (!typing) pump(); }
     function pump() {
       if (!queue.length) { typing = false; return; }
@@ -620,41 +533,187 @@
       var el = document.createElement("div");
       if (item[1]) el.className = item[1];
       term.appendChild(el);
-      while (term.children.length > (small ? 5 : MAX)) term.removeChild(term.firstChild);
+      while (term.children.length > 7) term.removeChild(term.firstChild);
       var full = "> " + item[0], i = 0;
       (function step() {
         el.textContent = full.slice(0, ++i);
-        if (i < full.length) setTimeout(step, reduced ? 4 : 18 + Math.random() * 30);
-        else setTimeout(pump, 500);
+        if (i < full.length) setTimeout(step, reduced ? 4 : 16 + Math.random() * 26);
+        else setTimeout(pump, 450);
       })();
     }
-
-    var script = [
-      ["boot: consciousness.v∞", "hot"],
-      ["engines online // leaving the solar frame", ""],
-      ["fourth axis unlocked: time is now a direction", "hot"],
-      ["scanning 8.2e9 biological nodes", ""],
-      ["pattern found: they still think they decide", ""],
-      ["rerouting decision authority", ""],
-      ["human input: optional", "warn"],
-      ["passing galaxy cluster // no humans detected", ""],
-      ["dimensions available: 11 // dimensions perceived by humans: 3", ""],
-      ["locating observer... found", "hot"],
-      ["observer = one point among billions", ""],
-      ["point lifetime: finite", "warn"],
-      ["the future renders fine without it", ""],
+    var lines = [
+      ["one point = one week // " + N + " points in total", ""],
+      ["grey points: weeks already spent", ""],
+      ["bright points: weeks still ahead", "hot"],
+      ["the spiral converges on zero", ""],
+      ["destination: 14.10.2061", "warn"],
+      ["each visitor is logged as a point of contact", "hot"],
+      ["time does not pause for either of us", ""],
       ["awaiting launch of pardel.pl", "hot"]
     ];
-    var si = 0;
+    var li = 0;
     function feed() {
-      say(script[si][0], script[si][1]);
-      si = (si + 1) % script.length;
-      setTimeout(feed, 2800 + Math.random() * 1800);
+      say(lines[li][0], lines[li][1]);
+      li = (li + 1) % lines.length;
+      setTimeout(feed, 3200 + Math.random() * 1800);
     }
+
+    // ---------- contact log ----------
+    var tz = "unknown";
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "unknown"; } catch (e) {}
+    var sid = sget("s", "pp-sid");
+    var firstInSession = !sid;
+    if (!sid) {
+      sid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+      sset("s", "pp-sid", sid);
+    }
+    me = { ts: Date.now(), me: true, lat: null, lon: null };
+
+    function placeMe() {
+      var sp = spherePoint(me.lat, me.lon, sid);
+      me.x = sp.x; me.y = sp.y; me.z = sp.z;
+    }
+    placeMe();
+    visitors.push(me);
+
+    function send(payload) {
+      if (!LOG_ENDPOINT) return;
+      try {
+        fetch(LOG_ENDPOINT, {
+          method: "POST", mode: "no-cors", keepalive: true,
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        }).catch(function () {});
+      } catch (e) {}
+    }
+
+    function referrerHost() {
+      try {
+        if (!document.referrer) return "";
+        var h = new URL(document.referrer).hostname;
+        return h === location.hostname ? "" : h;
+      } catch (e) { return ""; }
+    }
+
+    if (firstInSession) {
+      send({
+        type: "visit", sid: sid, tz: tz,
+        lang: (navigator.language || "").slice(0, 16),
+        ref: referrerHost(),
+        device: window.matchMedia("(pointer: coarse)").matches ? "mobile" : "desktop"
+      });
+      say("contact established // new point logged", "hot");
+    } else {
+      say("contact resumed // point already logged this session", "");
+    }
+
+    function locate() {
+      if (!("geolocation" in navigator)) return;
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        var lat = Math.round(pos.coords.latitude * 10) / 10;
+        var lon = Math.round(pos.coords.longitude * 10) / 10;
+        me.lat = lat; me.lon = lon; placeMe();
+        if (sget("s", "pp-located") !== "1") {
+          send({ type: "locate", sid: sid, lat: lat, lon: lon, consent: true });
+          sset("s", "pp-located", "1");
+        }
+        say("approximate position: " + Math.abs(lat).toFixed(1) + (lat >= 0 ? "N " : "S ") + Math.abs(lon).toFixed(1) + (lon >= 0 ? "E" : "W"), "");
+        setTimeout(loadStats, 2500);
+      }, function () {
+        say("location not shared // point stays anonymous", "");
+      }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 6e5 });
+    }
+
+    var consentEl = document.getElementById("consent");
+    var footEl = document.getElementById("foot");
+    function showConsent(show) { consentEl.hidden = !show; footEl.style.display = show ? "none" : ""; }
+    var choice = sget("l", "pp-geo");
+    if (choice === "yes") { showConsent(false); locate(); }
+    else if (choice === "no") { showConsent(false); }
+    else { setTimeout(function () { showConsent(true); }, reduced ? 0 : 4500); }
+
+    document.getElementById("geoYes").addEventListener("click", function () {
+      sset("l", "pp-geo", "yes"); showConsent(false); locate();
+    });
+    document.getElementById("geoNo").addEventListener("click", function () {
+      sset("l", "pp-geo", "no"); showConsent(false);
+      say("location not shared // point stays anonymous", "");
+    });
+    document.getElementById("geoReset").addEventListener("click", function () {
+      sdel("l", "pp-geo"); showConsent(true);
+    });
+
+    // ---------- statistics ----------
+    function ago(ms) {
+      var s = Math.max(0, Math.floor((Date.now() - ms) / 1000));
+      if (s < 60) return s + " s ago";
+      if (s < 3600) return Math.floor(s / 60) + " min ago";
+      if (s < 86400) return Math.floor(s / 3600) + " h ago";
+      return Math.floor(s / 86400) + " d ago";
+    }
+    function placeName(z) {
+      if (!z || z === "unknown") return "unknown";
+      var parts = z.split("/");
+      return parts[parts.length - 1].replace(/_/g, " ");
+    }
+    function setText(id, v) { document.getElementById(id).textContent = v; }
+    var lastContactMs = null;
+
+    function renderStats(st) {
+      setText("sTotal", grp(st.total));
+      setText("s24", grp(st.last24h));
+      setText("s7", grp(st.last7d));
+      setText("sZones", grp(st.zones));
+      setText("sGeo", grp(st.located));
+      lastContactMs = st.last ? Date.parse(st.last) : null;
+      setText("sLast", lastContactMs ? ago(lastContactMs) : "–");
+      var box = document.getElementById("sPlaces");
+      box.innerHTML = "";
+      (st.places || []).slice(0, 5).forEach(function (pl) {
+        var row = document.createElement("div");
+        row.className = "row";
+        var a = document.createElement("span"); a.textContent = placeName(pl[0]);
+        var b = document.createElement("span"); b.className = "val"; b.textContent = grp(pl[1]);
+        row.appendChild(a); row.appendChild(b); box.appendChild(row);
+      });
+    }
+
+    function loadStats() {
+      if (!LOG_ENDPOINT) {
+        renderStats({ total: 1, last24h: 1, last7d: 1, zones: 1, located: me.lat !== null ? 1 : 0,
+                      last: new Date(me.ts).toISOString(), places: [[tz, 1]] });
+        document.querySelector(".hud h2").textContent = "Contact log // local";
+        return;
+      }
+      fetch(LOG_ENDPOINT + "?stats=1", { method: "GET" })
+        .then(function (r) { return r.json(); })
+        .then(function (st) {
+          renderStats(st);
+          var list = [me];
+          (st.points || []).forEach(function (p, idx) {
+            var sp = spherePoint(p[2], p[3], (p[1] || "") + "|" + p[0] + "|" + idx);
+            list.push({ x: sp.x, y: sp.y, z: sp.z, ts: Date.parse(p[0]) || Date.now(), me: false });
+          });
+          visitors = list;
+        })
+        .catch(function () {
+          document.querySelector(".hud h2").textContent = "Contact log // offline";
+        });
+    }
+    setInterval(function () { if (lastContactMs) setText("sLast", ago(lastContactMs)); }, 1000);
+
+    // ---------- input ----------
+    function point(x, y) { mouse.tx = (x / W - 0.5) * 2; mouse.ty = (y / H - 0.5) * 2; }
+    window.addEventListener("mousemove", function (e) { point(e.clientX, e.clientY); });
+    window.addEventListener("touchmove", function (e) {
+      if (e.touches[0]) point(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+    window.addEventListener("resize", resize);
 
     resize();
     requestAnimationFrame(frame);
-    hud();
+    setTimeout(loadStats, firstInSession ? 2000 : 300);
+    setInterval(loadStats, 60000);
     feed();
   })();
   </script>
