@@ -100,13 +100,15 @@ function doGet() {
   var last = sh.getLastRow();
   var rows = last >= 2 ? sh.getRange(2, 1, last - 1, HEADER.length).getValues() : [];
   var now = Date.now();
-  var d1 = 0, d7 = 0, located = 0, zones = {}, lastTs = 0;
+  var d1 = 0, d7 = 0, d28 = 0, d365 = 0, located = 0, zones = {}, lastTs = 0;
 
   rows.forEach(function (r) {
     var ts = new Date(r[0]).getTime();
     if (!isFinite(ts)) return;
     if (now - ts < 864e5) d1++;
     if (now - ts < 7 * 864e5) d7++;
+    if (now - ts < 28 * 864e5) d28++;
+    if (now - ts < 365 * 864e5) d365++;
     if (r[6] !== '' && r[7] !== '') located++;
     var z = String(r[2] || 'unknown');
     zones[z] = (zones[z] || 0) + 1;
@@ -133,6 +135,8 @@ function doGet() {
     total: rows.length,
     last24h: d1,
     last7d: d7,
+    last28d: d28,
+    last365d: d365,
     zones: Object.keys(zones).length,
     located: located,
     last: lastTs ? new Date(lastTs).toISOString() : null,

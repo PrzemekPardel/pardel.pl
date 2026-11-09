@@ -365,6 +365,8 @@
     <div class="row"><span>Points contacted</span><span class="val" id="sTotal">–</span></div>
     <div class="row"><span>Last 24 h</span><span class="val" id="s24">–</span></div>
     <div class="row"><span>Last 7 days</span><span class="val" id="s7">–</span></div>
+    <div class="row"><span>Last 4 weeks</span><span class="val" id="s28">–</span></div>
+    <div class="row"><span>Last year</span><span class="val" id="s365">–</span></div>
     <div class="row"><span>Time zones</span><span class="val" id="sZones">–</span></div>
     <div class="row"><span>Located points</span><span class="val" id="sGeo">–</span></div>
     <div class="row"><span>Last contact</span><span class="val" id="sLast">–</span></div>
@@ -818,6 +820,8 @@
       setText("sTotal", grp(st.total));
       setText("s24", grp(st.last24h));
       setText("s7", grp(st.last7d));
+      setText("s28", st.last28d == null ? "–" : grp(st.last28d));
+      setText("s365", st.last365d == null ? "–" : grp(st.last365d));
       setText("sZones", grp(st.zones));
       setText("sGeo", grp(st.located));
       lastContactMs = st.last ? Date.parse(st.last) : null;
@@ -835,7 +839,7 @@
 
     function loadStats() {
       if (!LOG_ENDPOINT) {
-        renderStats({ total: 1, last24h: 1, last7d: 1, zones: 1, located: me.lat !== null ? 1 : 0,
+        renderStats({ total: 1, last24h: 1, last7d: 1, last28d: 1, last365d: 1, zones: 1, located: me.lat !== null ? 1 : 0,
                       last: new Date(me.ts).toISOString(), places: [[tz, 1]] });
         document.querySelector(".hud h2").textContent = "Contact log // local";
         return;
