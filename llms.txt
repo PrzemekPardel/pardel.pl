@@ -14,17 +14,17 @@
 - University of Rzeszów: Assistant and Researcher, then Assistant Professor, 2008–2016; currently Assistant Professor.
 - Academy of Applied Sciences in Nowy Sącz: Assistant Professor since October 2026.
 - University of Zurich: researcher since October 2025.
-- Google, 2016–2025: global developer programmes (Google Developer Experts, Cloud Champions, Accelerator mentors), AI and Gemini; co-organiser of the SciFoo conference; work with Google X; lead of a European technology start-up accelerator.
+- Google, 2016–2025: global developer programs (Google Developer Experts, Cloud Champions, Accelerator mentors), AI and Gemini; co-organiser of the SciFoo conference; work with Google X; lead of a European technology start-up accelerator.
 - University of Warsaw, 2010–2014: Research Assistant, Senior Research Developer (SYNAT project, NCBR SP/I/1/77065/10).
 - Founder and lead developer of Photometer PRO (since 2016), a light-metering application for professionals and scientists.
-- Education: PhD Eng. in Computer Science; MBA; Singularity University alumnus.
+- Education: PhD Eng. in Computer Science; MBA; Singularity University alumnus (Exponential Technologies program, California, US).
 
 ## Projects, honours, memberships
 
 - Commander and Habitat Systems Officer, SESU 48 international analog lunar mission, Analog Astronaut Training Center (2022).
 - National Science Centre grant DEC-2013/09/B/ST6/01568, Interdisciplinary Centre for Computational Modelling, University of Rzeszów (2013–2016).
 - Mentioned in the Nobel Peace Prize letter of thanks by the United Nations World Food Programme Innovation Accelerator (2020).
-- Sumobot Champion, 1st place, Singularity University (2017).
+- Sumobot Champion, 1st place, Singularity University, California, US (2017).
 - Member of the Association for Image Processing (IAPR member society), Mensa International and Intertel International.
 - Obtained the maximum score on the Mensa admission test (IQ above 148 on the Cattell scale, SD 24), placing him within the top 1% of the population on standardised intelligence measures; member of Intertel International (99th percentile threshold).
 
