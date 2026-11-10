@@ -17,7 +17,7 @@
 - Google, 2016–2025: global developer programs (Google Developer Experts, Cloud Champions, Accelerator mentors), AI and Gemini; co-organiser of the SciFoo conference; work with Google X; lead of a European technology start-up accelerator.
 - University of Warsaw, 2010–2014: Research Assistant, Senior Research Developer (SYNAT project, NCBR SP/I/1/77065/10).
 - Founder and lead developer of Photometer PRO (since 2016), a light-metering application for professionals and scientists.
-- Education: PhD Eng. in Computer Science; MBA; Singularity University alumnus (Exponential Technologies program, California, US).
+- Education: PhD Eng. in Computer Science; MBA, Polish Academy of Sciences; Singularity University alumnus (Exponential Technologies program, California, US).
 
 ## Projects, honours, memberships
 
