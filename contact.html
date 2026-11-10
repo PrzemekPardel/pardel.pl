@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Contact – Przemysław Wiktor Pardel, PhD Eng.</title>
+  <meta name="description" content="Contact Przemysław Wiktor Pardel, PhD Eng.: send a short message about research, teaching, collaboration or speaking.">
+  <meta name="author" content="Przemysław Wiktor Pardel">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://pardel.pl/contact.html">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Przemysław Wiktor Pardel">
+  <meta property="og:title" content="Contact – Przemysław Wiktor Pardel, PhD Eng.">
+  <meta property="og:description" content="Send a short message about research, teaching, collaboration or speaking.">
+  <meta property="og:url" content="https://pardel.pl/contact.html">
+  <meta property="og:image" content="https://pardel.pl/og.png">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#000000">
+  <style>
+    :root {
+      --bg: #020604; --fg: #cfe9db; --head: #eafff3; --accent: #00ff88; --pink: #ff4fd8;
+      --muted: #7fa792; --line: rgba(0,255,136,0.18); --card: rgba(0,20,10,0.55); --err: #ff6b8b;
+      --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg); }
+    body { color: var(--fg); font-family: var(--mono); font-size: 0.92rem; line-height: 1.75; -webkit-font-smoothing: antialiased; }
+    canvas#rain { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
+    .wrap { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 28px 16px 72px; }
+    a { color: var(--accent); text-underline-offset: 3px; }
+    a:focus-visible { outline: 2px solid var(--head); outline-offset: 2px; }
+
+    nav { display: flex; justify-content: space-between; gap: 16px; font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; }
+    nav a { text-decoration: none; color: var(--muted); }
+    nav a:hover, nav a[aria-current] { color: var(--accent); }
+    nav .right { display: flex; gap: 18px; }
+
+    header.hero { margin: 56px 0 32px; }
+    .kicker { font-size: 0.7rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--pink); }
+    h1 {
+      margin: 10px 0 6px;
+      font-size: clamp(1.6rem, 5vw, 2.7rem); line-height: 1.1; letter-spacing: 0.04em;
+      color: var(--head); text-transform: uppercase;
+      text-shadow: 0 0 6px rgba(0,255,136,0.7), 0 0 26px rgba(0,255,136,0.35);
+    }
+    .lead { margin-top: 18px; color: var(--head); max-width: 62ch; }
+
+    form { border: 1px solid var(--line); background: var(--card); padding: 22px 20px 20px; }
+    .field { margin-bottom: 18px; }
+    label { display: flex; justify-content: space-between; gap: 12px; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    label .opt { letter-spacing: 0.08em; text-transform: none; color: rgba(127,167,146,0.7); }
+    input, textarea {
+      display: block; width: 100%;
+      font: inherit; font-size: 0.92rem; color: var(--head);
+      background: rgba(0,0,0,0.55); border: 1px solid var(--line); border-radius: 0;
+      padding: 10px 12px; outline: none;
+    }
+    textarea { min-height: 170px; resize: vertical; line-height: 1.6; }
+    input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 14px rgba(0,255,136,0.2); }
+    .invalid input, .invalid textarea { border-color: var(--err); }
+    .hint { font-size: 0.74rem; color: var(--muted); margin-top: 5px; min-height: 1.2em; }
+    .invalid .hint { color: var(--err); }
+    .count { font-variant-numeric: tabular-nums; letter-spacing: 0.05em; }
+    .count.near { color: var(--pink); }
+    .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+    .agree { display: flex; gap: 10px; align-items: flex-start; font-size: 0.8rem; color: var(--fg); margin: 4px 0 20px; text-transform: none; letter-spacing: 0; }
+    .agree input { width: auto; margin-top: 5px; accent-color: var(--accent); }
+
+    button {
+      font: inherit; font-size: 0.8rem; letter-spacing: 0.25em; text-transform: uppercase; cursor: pointer;
+      padding: 11px 22px; border: 1px solid var(--accent); background: var(--accent); color: #001a0c;
+    }
+    button:hover { box-shadow: 0 0 18px rgba(0,255,136,0.45); }
+    button:focus-visible { outline: 2px solid var(--head); outline-offset: 3px; }
+    button[disabled] { opacity: 0.5; cursor: wait; box-shadow: none; }
+    .status { margin-top: 14px; font-size: 0.82rem; min-height: 1.4em; }
+    .status.ok { color: var(--accent); }
+    .status.bad { color: var(--err); }
+
+    .done { border: 1px solid var(--accent); background: var(--card); padding: 22px 20px; }
+    .done[hidden] { display: none; }
+    .done strong { display: block; color: var(--head); letter-spacing: 0.15em; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 8px; }
+    .done button { margin-top: 16px; background: transparent; color: var(--accent); }
+
+    .alt { margin-top: 26px; font-size: 0.82rem; color: var(--muted); }
+    footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 0.72rem; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    footer a { color: var(--muted); }
+    @media (max-width: 560px) { nav { letter-spacing: 0.15em; } nav .right { gap: 12px; } form { padding: 18px 14px 16px; } }
+  </style>
+</head>
+<body>
+  <canvas id="rain" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav aria-label="Main">
+      <a href="/">pardel.pl</a>
+      <div class="right">
+        <a href="/">Time</a>
+        <a href="about.html">About</a>
+        <a href="contact.html" aria-current="page">Contact</a>
+        <a href="privacy.html">Privacy</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="kicker">Contact</div>
+      <h1>Send a message</h1>
+      <p class="lead">Questions about research, teaching, student projects, collaboration or a talk are welcome.
+        Leave an e-mail address or a phone number and I will get back to you.</p>
+    </header>
+
+    <form id="form" novalidate>
+      <div class="field" id="fName">
+        <label for="name">Name, surname or nickname <span class="count" id="cName">0/60</span></label>
+        <input id="name" name="name" type="text" maxlength="60" autocomplete="name" required>
+        <div class="hint" id="hName"></div>
+      </div>
+      <div class="field" id="fReply">
+        <label for="reply">E-mail or phone <span class="opt">where I can reply</span></label>
+        <input id="reply" name="reply" type="text" maxlength="100" autocomplete="email" inputmode="email" required
+               placeholder="name@example.com or +48 600 000 000">
+        <div class="hint" id="hReply"></div>
+      </div>
+      <div class="field" id="fMsg">
+        <label for="message">Message <span class="count" id="cMsg">0/600</span></label>
+        <textarea id="message" name="message" maxlength="600" required></textarea>
+        <div class="hint" id="hMsg"></div>
+      </div>
+      <div class="trap" aria-hidden="true">
+        <label for="website">Website</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <label class="agree" for="agree">
+        <input id="agree" type="checkbox" required>
+        <span>I agree that the data entered above is stored to answer my message, as described in the
+          <a href="privacy.html#messages">privacy notice</a>.</span>
+      </label>
+      <button id="send" type="submit">Submit</button>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+    </form>
+
+    <div class="done" id="done" role="status" hidden>
+      <strong>Message sent</strong>
+      Thank you. Your message has been sent and I will reply as soon as I can.
+      <div><button id="again" type="button">Write another message</button></div>
+    </div>
+
+    <p class="alt">You can also write directly to
+      <a href="mailto:przemyslaw.pardel@gmail.com">przemyslaw.pardel@gmail.com</a> or reach me on
+      <a href="https://www.linkedin.com/in/pardel/" rel="me noopener" target="_blank">LinkedIn</a>.</p>
+
+    <footer>
+      <span>&copy; 2026 Przemysław Wiktor Pardel</span>
+      <span><a href="/">Time nebula</a> &middot; <a href="about.html">About</a> &middot; <a href="privacy.html">Privacy</a></span>
+    </footer>
+  </div>
+
+  <script>
+  (function () {
+    "use strict";
+
+    // Same Google Apps Script web app as the visit log on the home page.
+    var ENDPOINT = "https://script.google.com/macros/s/AKfycbzqvhaPyrio346ygvU7WJhCm8t5C1-Gs4_O6FALrSCOwBcJsVngkLaJr_jXePHMw-CwEg/exec";
+    var MAX = { name: 60, reply: 100, message: 600 };
+    var opened = Date.now();
+
+    var form = document.getElementById("form");
+    var done = document.getElementById("done");
+    var status = document.getElementById("status");
+    var send = document.getElementById("send");
+    var fields = {
+      name: document.getElementById("name"),
+      reply: document.getElementById("reply"),
+      message: document.getElementById("message")
+    };
+
+    function clean(s) { return String(s || "").replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, "").trim(); }
+    function isEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s); }
+    function isPhone(s) { var d = s.replace(/\D/g, ""); return /^\+?[\d\s().\-\/]+$/.test(s) && d.length >= 7 && d.length <= 15; }
+
+    function counter(input, el, max) {
+      function upd() {
+        var n = input.value.length;
+        el.textContent = n + "/" + max;
+        el.className = "count" + (n > max * 0.9 ? " near" : "");
+      }
+      input.addEventListener("input", upd); upd();
+    }
+    counter(fields.name, document.getElementById("cName"), MAX.name);
+    counter(fields.message, document.getElementById("cMsg"), MAX.message);
+
+    function mark(id, hintId, msg) {
+      document.getElementById(id).classList.toggle("invalid", !!msg);
+      document.getElementById(hintId).textContent = msg || "";
+      return !msg;
+    }
+    function validate() {
+      var name = clean(fields.name.value), reply = clean(fields.reply.value), msg = clean(fields.message.value);
+      var ok = true;
+      ok = mark("fName", "hName", name.length < 2 ? "Please enter a name or nickname." : "") && ok;
+      ok = mark("fReply", "hReply", !(isEmail(reply) || isPhone(reply)) ? "Please enter a valid e-mail address or phone number." : "") && ok;
+      ok = mark("fMsg", "hMsg", msg.length < 10 ? "The message should be at least 10 characters long." : "") && ok;
+      return ok ? { name: name, reply: reply, message: msg } : null;
+    }
+    ["name", "reply", "message"].forEach(function (k) {
+      fields[k].addEventListener("blur", function () { if (fields[k].value) validate(); });
+    });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      status.className = "status"; status.textContent = "";
+      var data = validate();
+      if (!data) { status.className = "status bad"; status.textContent = "Please correct the highlighted fields."; return; }
+      if (!document.getElementById("agree").checked) {
+        status.className = "status bad"; status.textContent = "Please confirm the consent to store the message."; return;
+      }
+      send.disabled = true; status.textContent = "Sending…";
+      var payload = {
+        type: "message",
+        sid: Math.random().toString(36).slice(2, 10) + Date.now().toString(36),
+        name: data.name.slice(0, MAX.name),
+        reply: data.reply.slice(0, MAX.reply),
+        message: data.message.slice(0, MAX.message),
+        lang: (navigator.language || "").slice(0, 16),
+        website: document.getElementById("website").value,
+        elapsed: Date.now() - opened
+      };
+      fetch(ENDPOINT, {
+        method: "POST", mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).then(function () {
+        form.reset(); form.hidden = true; done.hidden = false;
+        fields.name.dispatchEvent(new Event("input")); fields.message.dispatchEvent(new Event("input"));
+      }).catch(function () {
+        status.className = "status bad";
+        status.textContent = "The message could not be sent. Please check your connection or write by e-mail.";
+      }).then(function () { send.disabled = false; });
+    });
+
+    document.getElementById("again").addEventListener("click", function () {
+      done.hidden = true; form.hidden = false; status.textContent = ""; opened = Date.now(); fields.name.focus();
+    });
+
+    // background rain, as on the About page
+    var c = document.getElementById("rain"), x = c.getContext("2d");
+    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var W, H, D = Math.min(window.devicePixelRatio || 1, 2), cols = [], cw = 16;
+    var G = "アイウエオカキクケコサシスセソタチツテト0123456789";
+    function size() {
+      W = window.innerWidth; H = window.innerHeight;
+      c.width = W * D; c.height = H * D; x.setTransform(D, 0, 0, D, 0, 0);
+      cols = []; for (var i = 0; i < Math.ceil(W / cw); i++) cols.push(Math.random() * -H);
+      x.fillStyle = "#020604"; x.fillRect(0, 0, W, H);
+    }
+    function tick() {
+      x.fillStyle = "rgba(2,6,4,0.12)"; x.fillRect(0, 0, W, H);
+      x.font = cw + "px monospace";
+      for (var i = 0; i < cols.length; i++) {
+        var edge = Math.abs(i * cw - W / 2) / (W / 2);
+        x.fillStyle = "rgba(0,255,136," + (0.02 + edge * edge * 0.16) + ")";
+        x.fillText(G.charAt((Math.random() * G.length) | 0), i * cw, cols[i]);
+        cols[i] += 7;
+        if (cols[i] > H + Math.random() * 600) cols[i] = Math.random() * -200;
+      }
+      setTimeout(function () { requestAnimationFrame(tick); }, 50);
+    }
+    size(); window.addEventListener("resize", size);
+    if (!reduced) tick();
+  })();
+  </script>
+</body>
+</html>

@@ -10,7 +10,8 @@ The site is static and served by GitHub Pages directly from the `main` branch. T
 |----------------|--------------------------------------------------------------------------|
 | `index.html`   | Home page with the animated visualisation and the visit statistics panel |
 | `about.html`   | Research, positions, projects, honours and memberships                   |
-| `privacy.html` | Privacy notice for the visit log                                         |
+| `contact.html` | Contact form; messages are stored in the `Contact` sheet                 |
+| `privacy.html` | Privacy notice for the visit log, names and contact messages             |
 | `404.html`     | Page shown for unknown addresses                                         |
 | `favicon.svg`  | Site icon                                                                |
 | `og.png`       | Preview image used when a link is shared (1200 × 630)                    |

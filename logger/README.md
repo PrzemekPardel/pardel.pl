@@ -36,6 +36,16 @@ publishes counts and coordinates rounded to whole degrees (about 100 km).
 After changes to `Code.gs`, use Deploy → Manage deployments → Edit → New version,
 otherwise the URL keeps serving the previous code.
 
+## Contact form
+
+`contact.html` sends messages to the same web app. They are written to a separate sheet,
+`Contact`, created automatically on the first message, with the columns: timestamp, name,
+reply to (e-mail or phone), message (max. 600 characters) and browser language.
+
+Basic protection against automated submissions: a hidden field that people do not fill in,
+a minimum of three seconds between opening the page and sending, and an upper limit of
+30 accepted messages per hour. `purgeOldRows` also removes messages older than 12 months.
+
 ## Names
 
 Visitors may sign their point with a name, surname or nickname of up to 30 characters

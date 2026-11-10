@@ -3,6 +3,7 @@
  *
  * Google Apps Script web app bound to a Google Sheet.
  *   POST  stores one visit (or adds an approximate location to a visit of the same session)
+ *   POST  also receives messages from the contact form (sheet 'Contact')
  *   GET   returns aggregated statistics used by the page
  *
  * Stored columns: timestamp, session, timezone, language, referrer, device, lat, lon, consent, name.
@@ -13,6 +14,10 @@
 var SHEET_NAME = 'contacts';
 var HEADER = ['timestamp', 'session', 'timezone', 'language', 'referrer', 'device', 'lat', 'lon', 'consent', 'name'];
 var NAME_COL = 10;
+
+var CONTACT_SHEET = 'Contact';
+var CONTACT_HEADER = ['timestamp', 'name', 'reply to', 'message', 'language'];
+var CONTACT_PER_HOUR = 30;    // upper limit of accepted messages per hour, against floods
 var NAME_MAX = 30;
 var PUBLIC_POINTS = 1000;     // most recent visits returned to the page
 var RETENTION_DAYS = 365;     // rows older than this are removed by purgeOldRows()
@@ -29,6 +34,45 @@ function sheet_() {
     sh.getRange(1, NAME_COL).setValue('name');   // sheets created before the name column existed
   }
   return sh;
+}
+
+function contactSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(CONTACT_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(CONTACT_SHEET);
+    sh.appendRow(CONTACT_HEADER);
+    sh.setFrozenRows(1);
+    sh.setColumnWidth(4, 520);
+    sh.getRange('D:D').setWrap(true);
+  }
+  return sh;
+}
+
+// Multi-line plain text (line breaks kept, other control characters removed).
+function message_(value, maxLen) {
+  var s = String(value === null || value === undefined ? '' : value)
+    .replace(/\r\n?/g, '\n')
+    .replace(/[\u0000-\u0009\u000b-\u001f\u007f]/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+    .slice(0, maxLen);
+  return /^[=+\-@]/.test(s) ? "'" + s : s;
+}
+
+function storeMessage_(d) {
+  if (d.website) return;                         // hidden field filled in: automated submission
+  if (!(Number(d.elapsed) >= 3000)) return;      // sent faster than a person can type
+  var name = text_(d.name, 60), reply = text_(d.reply, 100), msg = message_(d.message, 600);
+  if (name.length < 2 || reply.length < 5 || msg.length < 10) return;
+
+  var cache = CacheService.getScriptCache();
+  var key = 'msg-' + Math.floor(Date.now() / 36e5);
+  var count = Number(cache.get(key) || 0);
+  if (count >= CONTACT_PER_HOUR) return;
+  cache.put(key, String(count + 1), 3700);
+
+  contactSheet_().appendRow([new Date(), name, reply, msg, text_(d.lang, 16)]);
 }
 
 // Visitor-chosen label: letters, digits, spaces and . _ - ' only; links are rejected.
@@ -99,6 +143,11 @@ function doPost(e) {
           }
         }
       }
+      return ok_();
+    }
+
+    if (d.type === 'message') {
+      storeMessage_(d);
       return ok_();
     }
 
@@ -196,16 +245,17 @@ function doGet() {
   return json_(out);
 }
 
-/** Run daily from a time-driven trigger: removes rows older than RETENTION_DAYS. */
+/** Run daily from a time-driven trigger: removes visits and messages older than RETENTION_DAYS. */
 function purgeOldRows() {
-  var sh = sheet_();
-  var last = sh.getLastRow();
-  if (last < 2) return;
-  var limit = Date.now() - RETENTION_DAYS * 864e5;
-  var stamps = sh.getRange(2, 1, last - 1, 1).getValues();
-  var n = 0;
-  while (n < stamps.length && new Date(stamps[n][0]).getTime() < limit) n++;
-  if (n > 0) sh.deleteRows(2, n);
+  [sheet_(), contactSheet_()].forEach(function (sh) {
+    var last = sh.getLastRow();
+    if (last < 2) return;
+    var limit = Date.now() - RETENTION_DAYS * 864e5;
+    var stamps = sh.getRange(2, 1, last - 1, 1).getValues();
+    var n = 0;
+    while (n < stamps.length && new Date(stamps[n][0]).getTime() < limit) n++;
+    if (n > 0) sh.deleteRows(2, n);
+  });
   invalidate_();
 }
 
