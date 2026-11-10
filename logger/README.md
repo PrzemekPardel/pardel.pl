@@ -16,6 +16,7 @@ whole server side.
 | device    | `mobile` or `desktop`                                     |
 | lat, lon  | approximate position, only after explicit consent (0.1°)  |
 | consent   | `yes` if a location was shared                            |
+| name      | optional name or nickname chosen by the visitor (max. 30) |
 
 IP addresses, user agents and cookies are not used. The statistics endpoint
 publishes counts and coordinates rounded to whole degrees (about 100 km).
@@ -34,6 +35,16 @@ publishes counts and coordinates rounded to whole degrees (about 100 km).
 
 After changes to `Code.gs`, use Deploy → Manage deployments → Edit → New version,
 otherwise the URL keeps serving the previous code.
+
+## Names
+
+Visitors may sign their point with a name, surname or nickname of up to 30 characters
+(letters, digits, spaces and `. _ - '`; anything that looks like a link is rejected).
+The name is published next to the point. A browser keeps the session strings of its last
+20 visits, so signing or removing a name applies to all of them.
+
+To remove an unwanted name, clear the cell in the `name` column of the sheet. The page
+picks up the change within a minute.
 
 ## Notes
 

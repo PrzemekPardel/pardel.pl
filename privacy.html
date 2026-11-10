@@ -50,7 +50,7 @@
   <main>
     <a class="back" href="/">&larr; pardel.pl</a> &nbsp; <a class="back" href="about.html">About</a>
     <h1>Privacy notice</h1>
-    <p class="meta">Last updated: 8 November 2026</p>
+    <p class="meta">Last updated: 10 November 2026</p>
 
     <h2>Controller</h2>
     <p>Przemysław Wiktor Pardel, Poland. Contact: <a href="mailto:przemyslaw.pardel@gmail.com">przemyslaw.pardel@gmail.com</a>.</p>
@@ -66,10 +66,12 @@
       <tr><td>Device class</td><td>mobile / desktop</td><td>always</td></tr>
       <tr><td>Random session string</td><td>k3f9x0a1…</td><td>always</td></tr>
       <tr><td>Approximate location, rounded to about 10 km</td><td>50.0, 22.0</td><td>only with your consent</td></tr>
+      <tr><td>Name, surname or nickname you enter (max. 30 characters)</td><td>Ada L.</td><td>only if you sign your point</td></tr>
     </table>
     <p>IP addresses, user-agent strings and precise locations are not stored. The site sets no cookies. The browser's
-      session storage holds the random session string until the tab is closed, and local storage keeps your answer to the
-      location question so that it is not asked again.</p>
+      session storage holds the random session string until the tab is closed. Local storage keeps your answers to the
+      location and name questions, the name itself and the session strings of your last 20 visits, so that a name can be
+      applied to, or removed from, all of them.</p>
 
     <h2>Purpose and legal basis</h2>
     <ul>
@@ -78,11 +80,16 @@
       <li>The approximate location is processed only after you choose “Share location” and confirm the browser prompt.
         Legal basis: consent (Art. 6(1)(a) GDPR). You can withdraw consent at any time with the “Location choice” link on the page;
         withdrawal does not affect processing carried out before it.</li>
+      <li>The name is processed only if you enter it with “Sign your point”, and it is published next to your point.
+        Legal basis: consent (Art. 6(1)(a) GDPR). You can change or remove it at any time with “Sign your point” → “Remove name”
+        in the same browser, or by writing to the address above. Please do not enter another person's name.</li>
     </ul>
 
     <h2>What is shown publicly</h2>
     <p>The page displays totals, counts per time zone and the time of the most recent visit. Visit points are drawn on a sphere;
-      shared locations are rounded to whole degrees (about 100 km) before they leave the server.</p>
+      shared locations are rounded to whole degrees (about 100 km) before they leave the server. A name entered with
+      “Sign your point” is shown publicly next to the point. Names that are offensive, impersonate someone or advertise
+      may be removed without notice.</p>
 
     <h2>Storage and recipients</h2>
     <p>Records are stored in a Google Sheet through Google Apps Script, operated by Google as a service provider. The website itself
@@ -94,8 +101,8 @@
 
     <h2>Your rights</h2>
     <p>You have the right to access, rectify and erase your data, to restrict or object to processing, and to withdraw consent.
-      Because records do not contain names or IP addresses, it may only be possible to identify your record if you provide the
-      approximate time of your visit. Requests can be sent to the address above. You also have the right to lodge a complaint with
+      Records do not contain IP addresses; unless you signed your point, it may only be possible to identify your record if you
+      provide the approximate time of your visit. Requests can be sent to the address above. You also have the right to lodge a complaint with
       the President of the Personal Data Protection Office (Prezes UODO), ul. Stawki 2, 00-193 Warszawa.</p>
   </main>
 </body>

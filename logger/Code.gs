@@ -5,12 +5,15 @@
  *   POST  stores one visit (or adds an approximate location to a visit of the same session)
  *   GET   returns aggregated statistics used by the page
  *
- * Stored columns: timestamp, session, timezone, language, referrer, device, lat, lon, consent.
+ * Stored columns: timestamp, session, timezone, language, referrer, device, lat, lon, consent, name.
+ * The name is optional, chosen by the visitor (max. 30 characters) and shown next to the point.
  * No IP addresses, user agents or persistent identifiers are stored.
  */
 
 var SHEET_NAME = 'contacts';
-var HEADER = ['timestamp', 'session', 'timezone', 'language', 'referrer', 'device', 'lat', 'lon', 'consent'];
+var HEADER = ['timestamp', 'session', 'timezone', 'language', 'referrer', 'device', 'lat', 'lon', 'consent', 'name'];
+var NAME_COL = 10;
+var NAME_MAX = 30;
 var PUBLIC_POINTS = 1000;     // most recent visits returned to the page
 var RETENTION_DAYS = 365;     // rows older than this are removed by purgeOldRows()
 var CACHE_SECONDS = 60;
@@ -22,8 +25,36 @@ function sheet_() {
     sh = ss.insertSheet(SHEET_NAME);
     sh.appendRow(HEADER);
     sh.setFrozenRows(1);
+  } else if (sh.getRange(1, NAME_COL).getValue() === '') {
+    sh.getRange(1, NAME_COL).setValue('name');   // sheets created before the name column existed
   }
   return sh;
+}
+
+// Visitor-chosen label: letters, digits, spaces and . _ - ' only; links are rejected.
+function name_(value) {
+  var s = String(value === null || value === undefined ? '' : value)
+    .normalize('NFC')
+    .replace(/[^\p{L}\p{M}\p{N} ._'\-]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, NAME_MAX)
+    .trim();
+  if (/(https?|www\.|\.(com|net|org|pl|io|ru|xyz)\b)/i.test(s)) return '';
+  return s.replace(/^[=+\-@']+/, '');
+}
+
+// Row numbers of the most recent rows belonging to the given session strings.
+function rowsFor_(sh, sids) {
+  var last = sh.getLastRow();
+  if (last < 2) return [];
+  var from = Math.max(2, last - 1999);
+  var ids = sh.getRange(from, 2, last - from + 1, 1).getValues();
+  var out = [];
+  for (var i = 0; i < ids.length; i++) {
+    if (sids.indexOf(String(ids[i][0])) !== -1) out.push(from + i);
+  }
+  return out;
 }
 
 // Plain text only; values starting with a formula character are neutralised.
@@ -71,6 +102,20 @@ function doPost(e) {
       return ok_();
     }
 
+    if (d.type === 'name') {
+      // Sets, changes or removes the name on all visits of this browser (up to 20 sessions).
+      var list = (Array.isArray(d.sids) ? d.sids : []).concat([sid])
+        .map(function (x) { return text_(x, 40); })
+        .filter(function (x) { return x && x.charAt(0) !== "'"; })
+        .slice(-21);
+      var label = name_(d.name);
+      rowsFor_(sh, list).forEach(function (row) {
+        sh.getRange(row, NAME_COL).setValue(label);
+      });
+      invalidate_();
+      return ok_();
+    }
+
     if (d.type === 'visit') {
       sh.appendRow([
         new Date(),
@@ -79,7 +124,8 @@ function doPost(e) {
         text_(d.lang, 16),
         text_(d.ref, 100),
         d.device === 'mobile' ? 'mobile' : 'desktop',
-        '', '', 'no'
+        '', '', 'no',
+        name_(d.name)
       ]);
       invalidate_();
     }
@@ -100,7 +146,7 @@ function doGet() {
   var last = sh.getLastRow();
   var rows = last >= 2 ? sh.getRange(2, 1, last - 1, HEADER.length).getValues() : [];
   var now = Date.now();
-  var d1 = 0, d7 = 0, d28 = 0, d365 = 0, located = 0, zones = {}, lastTs = 0;
+  var d1 = 0, d7 = 0, d28 = 0, d365 = 0, located = 0, named = 0, zones = {}, lastTs = 0;
 
   rows.forEach(function (r) {
     var ts = new Date(r[0]).getTime();
@@ -110,6 +156,7 @@ function doGet() {
     if (now - ts < 28 * 864e5) d28++;
     if (now - ts < 365 * 864e5) d365++;
     if (r[6] !== '' && r[7] !== '') located++;
+    if (r[9] !== '' && r[9] !== undefined) named++;
     var z = String(r[2] || 'unknown');
     zones[z] = (zones[z] || 0) + 1;
     if (ts > lastTs) lastTs = ts;
@@ -127,7 +174,8 @@ function doGet() {
       new Date(r[0]).toISOString(),
       String(r[2] || ''),
       hasGeo ? Math.round(Number(r[6])) : null,
-      hasGeo ? Math.round(Number(r[7])) : null
+      hasGeo ? Math.round(Number(r[7])) : null,
+      String(r[9] || '')
     ];
   });
 
@@ -139,6 +187,7 @@ function doGet() {
     last365d: d365,
     zones: Object.keys(zones).length,
     located: located,
+    named: named,
     last: lastTs ? new Date(lastTs).toISOString() : null,
     places: places,
     points: points

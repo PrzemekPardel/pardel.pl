@@ -24,7 +24,7 @@ All styles and scripts are inline in the HTML files. The pages load no external 
 
 ## Visit statistics
 
-GitHub Pages cannot store data, so visits are recorded by a Google Apps Script web app that writes to a Google Sheet. The page sends one anonymous record per browser session and reads aggregated counts (total, last 24 hours, 7 days, 4 weeks, year, time zones) from the same endpoint. The endpoint address is set in `index.html` as `LOG_ENDPOINT`. If it is left empty, the panel shows only the current visit.
+GitHub Pages cannot store data, so visits are recorded by a Google Apps Script web app that writes to a Google Sheet. The page sends one anonymous record per browser session and reads aggregated counts (total, last 24 hours, 7 days, 4 weeks, year, time zones) from the same endpoint. Visitors may also sign their point with a name or nickname of up to 30 characters, which is then shown next to the point. The endpoint address is set in `index.html` as `LOG_ENDPOINT`. If it is left empty, the panel shows only the current visit.
 
 Deployment, stored fields and retention are described in [`logger/README.md`](logger/README.md). After any change to `logger/Code.gs`, the script must be redeployed as a new version in Apps Script; pushing to this repository does not update it.
 

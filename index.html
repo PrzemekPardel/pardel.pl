@@ -296,11 +296,11 @@
       position: fixed; right: 16px; bottom: 16px;
       width: min(300px, calc(100vw - 32px));
       padding: 14px 14px 12px;
-      background: rgba(0, 12, 6, 0.88);
+      background: rgba(0, 12, 6, 0.95);
       border: 1px solid var(--faint);
       box-shadow: 0 0 30px rgba(0,255,136,0.12);
       font-size: 0.7rem; line-height: 1.55; color: #cdeedd;
-      cursor: default;
+      cursor: default; z-index: 3;
     }
     .consent[hidden] { display: none; }
     .consent strong { display: block; color: #eafff3; letter-spacing: 0.15em; text-transform: uppercase; font-size: 0.66rem; margin-bottom: 6px; }
@@ -319,6 +319,15 @@
       color: var(--faint);
     }
     .foot a { text-decoration: none; }
+    .consent label { display: block; margin-top: 10px; color: var(--dim); font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; }
+    .consent input {
+      display: block; width: 100%; margin-top: 4px;
+      font: inherit; font-size: 0.8rem; letter-spacing: 0.04em;
+      padding: 7px 8px; color: #eafff3; background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--faint); border-radius: 0; outline: none;
+    }
+    .consent input:focus { border-color: var(--green); box-shadow: 0 0 10px rgba(0,255,136,0.25); }
+    .consent .count { float: right; color: var(--faint); font-variant-numeric: tabular-nums; }
     .foot button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--dim); background: none; border: 0; cursor: pointer; }
 
     @media (max-width: 1060px) { .term { display: none; } }
@@ -397,7 +406,21 @@
     <div style="margin-top:8px"><a href="privacy.html">Privacy notice</a></div>
   </div>
 
-  <div class="foot" id="foot"><a href="privacy.html">Privacy</a> &middot; <button id="geoReset" type="button">Location choice</button></div>
+  <form class="consent" id="sign" role="dialog" aria-labelledby="signTitle" hidden novalidate>
+    <strong id="signTitle">Sign your point</strong>
+    Your point is anonymous. If you like, give it a name, surname or nickname and it will appear next to your point
+    in this space for every visitor to see. Optional, public, and you can change or remove it at any time.
+    <label for="signName">Name or nickname <span class="count" id="signCount">0/30</span></label>
+    <input id="signName" name="name" type="text" maxlength="30" autocomplete="nickname" spellcheck="false" placeholder="e.g. Ada L.">
+    <div class="btns">
+      <button class="primary" id="signSave" type="submit">Sign</button>
+      <button id="signSkip" type="button">Stay anonymous</button>
+      <button id="signRemove" type="button" hidden>Remove name</button>
+    </div>
+    <div style="margin-top:8px"><a href="privacy.html">Privacy notice</a></div>
+  </form>
+
+  <div class="foot" id="foot"><a href="privacy.html">Privacy</a> &middot; <button id="geoReset" type="button">Location choice</button> &middot; <button id="signOpen" type="button">Sign your point</button></div>
 
   <script>
   (function () {
@@ -456,7 +479,7 @@
     })();
 
     // ---------- visitors ----------
-    var visitors = [];       // { x, y, z, ts, me }
+    var visitors = [];       // { x, y, z, ts, me, name, label }
     var me = null;
     var RS = R * 1.32;
 
@@ -641,7 +664,7 @@
           ctx.globalCompositeOperation = "source-over";
           ctx.font = "10px monospace"; ctx.textBaseline = "middle";
           ctx.fillStyle = "rgba(255,170,235,0.95)";
-          ctx.fillText("you", mx + 12, my);
+          ctx.fillText(me.name ? "you // " + me.name : "you", mx + 12, my);
           ctx.globalCompositeOperation = "lighter";
         } else {
           var szv = Math.max(2, Math.min(5, 3 * pv.k));
@@ -649,6 +672,13 @@
           ctx.beginPath(); ctx.arc(pv.x, pv.y, szv * 2.2, 0, TAU); ctx.fill();
           ctx.fillStyle = "rgba(255,190,240," + (0.85 * fresh * dv) + ")";
           ctx.fillRect(pv.x - szv / 2, pv.y - szv / 2, szv, szv);
+          if (vi.label) {
+            ctx.globalCompositeOperation = "source-over";
+            ctx.font = (small ? 9 : 10) + "px monospace"; ctx.textBaseline = "middle"; ctx.textAlign = "left";
+            ctx.fillStyle = "rgba(255,200,242," + Math.max(0.35, 0.9 * fresh * dv) + ")";
+            ctx.fillText(vi.name, pv.x + szv + 5, pv.y);
+            ctx.globalCompositeOperation = "lighter";
+          }
         }
       }
 
@@ -709,6 +739,7 @@
       ["the spiral converges on zero", ""],
       ["remaining time tends to zero", "warn"],
       ["each visitor is logged as a point of contact", "hot"],
+      ["sign your point // a name will float next to it", ""],
       ["time does not pause for either of us", ""],
       ["awaiting launch of pardel.pl", "hot"]
     ];
@@ -728,7 +759,22 @@
       sid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
       sset("s", "pp-sid", sid);
     }
-    me = { ts: Date.now(), me: true, lat: null, lon: null };
+    // Session strings of this browser, kept so that a name can be applied to its earlier visits too.
+    var mySids = [];
+    try { mySids = JSON.parse(sget("l", "pp-sids") || "[]"); } catch (e) { mySids = []; }
+    if (!Array.isArray(mySids)) mySids = [];
+    if (mySids.indexOf(sid) === -1) { mySids.push(sid); mySids = mySids.slice(-20); sset("l", "pp-sids", JSON.stringify(mySids)); }
+
+    var NAME_MAX = 30;
+    function cleanName(v) {
+      var s = String(v || "");
+      try { s = s.normalize("NFC").replace(/[^\p{L}\p{M}\p{N} ._'\-]/gu, ""); }
+      catch (e) { s = s.replace(/[<>"`{}\[\]\\\/|@#$%^&*+=~;:!?,()]/g, ""); }
+      s = s.replace(/\s+/g, " ").trim().slice(0, NAME_MAX).trim();
+      if (/(https?|www\.|\.(com|net|org|pl|io|ru|xyz)\b)/i.test(s)) return "";
+      return s.replace(/^[=+\-@']+/, "");
+    }
+    me = { ts: Date.now(), me: true, lat: null, lon: null, name: cleanName(sget("l", "pp-name")) };
 
     function placeMe() {
       var sp = spherePoint(me.lat, me.lon, sid);
@@ -761,7 +807,8 @@
         type: "visit", sid: sid, tz: tz,
         lang: (navigator.language || "").slice(0, 16),
         ref: referrerHost(),
-        device: window.matchMedia("(pointer: coarse)").matches ? "mobile" : "desktop"
+        device: window.matchMedia("(pointer: coarse)").matches ? "mobile" : "desktop",
+        name: me.name
       });
       say("contact established // new point logged", "hot");
     } else {
@@ -788,20 +835,58 @@
     var consentEl = document.getElementById("consent");
     var footEl = document.getElementById("foot");
     function showConsent(show) { consentEl.hidden = !show; footEl.style.display = show ? "none" : ""; }
+    // ---------- signing the point ----------
+    var signEl = document.getElementById("sign");
+    var signName = document.getElementById("signName");
+    var signCount = document.getElementById("signCount");
+    var signRemove = document.getElementById("signRemove");
+    function showSign(show) {
+      if (show) { consentEl.hidden = true; signName.value = me.name || ""; updateCount(); signRemove.hidden = !me.name; }
+      signEl.hidden = !show;
+      footEl.style.display = show ? "none" : "";
+      if (show && !window.matchMedia("(pointer: coarse)").matches) { try { signName.focus(); } catch (e) {} }
+    }
+    function updateCount() { signCount.textContent = signName.value.length + "/" + NAME_MAX; }
+    function applyName(name) {
+      me.name = name;
+      if (name) sset("l", "pp-name", name); else sdel("l", "pp-name");
+      sset("l", "pp-signed", "1");
+      send({ type: "name", sid: sid, sids: mySids, name: name });
+      say(name ? "point signed // " + name : "name removed // point is anonymous again", name ? "hot" : "");
+      setTimeout(loadStats, 2500);
+    }
+    function maybeInviteSign() {
+      if (me.name || sget("l", "pp-signed") === "1") return;
+      setTimeout(function () { if (consentEl.hidden) showSign(true); }, reduced ? 0 : 1800);
+    }
+    signName.addEventListener("input", updateCount);
+    signEl.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = cleanName(signName.value);
+      if (!name) { signName.value = ""; updateCount(); signName.placeholder = "letters, digits, spaces, . _ - '"; return; }
+      showSign(false); applyName(name);
+    });
+    document.getElementById("signSkip").addEventListener("click", function () {
+      sset("l", "pp-signed", "1"); showSign(false);
+    });
+    signRemove.addEventListener("click", function () { showSign(false); applyName(""); });
+    document.getElementById("signOpen").addEventListener("click", function () { showSign(true); });
+
     var choice = sget("l", "pp-geo");
-    if (choice === "yes") { showConsent(false); locate(); }
-    else if (choice === "no") { showConsent(false); }
+    if (choice === "yes") { showConsent(false); locate(); maybeInviteSign(); }
+    else if (choice === "no") { showConsent(false); maybeInviteSign(); }
     else { setTimeout(function () { showConsent(true); }, reduced ? 0 : 4500); }
 
     document.getElementById("geoYes").addEventListener("click", function () {
-      sset("l", "pp-geo", "yes"); showConsent(false); locate();
+      sset("l", "pp-geo", "yes"); showConsent(false); locate(); maybeInviteSign();
     });
     document.getElementById("geoNo").addEventListener("click", function () {
       sset("l", "pp-geo", "no"); showConsent(false);
       say("location not shared // point stays anonymous", "");
+      maybeInviteSign();
     });
     document.getElementById("geoReset").addEventListener("click", function () {
-      sdel("l", "pp-geo"); showConsent(true);
+      sdel("l", "pp-geo"); signEl.hidden = true; showConsent(true);
     });
 
     // ---------- statistics ----------
@@ -855,8 +940,16 @@
           var list = [me];
           (st.points || []).forEach(function (p, idx) {
             var sp = spherePoint(p[2], p[3], (p[1] || "") + "|" + p[0] + "|" + idx);
-            list.push({ x: sp.x, y: sp.y, z: sp.z, ts: Date.parse(p[0]) || Date.now(), me: false });
+            list.push({ x: sp.x, y: sp.y, z: sp.z, ts: Date.parse(p[0]) || Date.now(), me: false,
+                        name: cleanName(p[4]), label: false });
           });
+          // A name is drawn once, on its most recent point; the visitor's own name is shown on "you".
+          var seen = {}, shown = 0;
+          if (me.name) seen[me.name.toLowerCase()] = true;
+          for (var j = list.length - 1; j > 0 && shown < 80; j--) {
+            var key = list[j].name ? list[j].name.toLowerCase() : "";
+            if (key && !seen[key]) { seen[key] = true; list[j].label = true; shown++; }
+          }
           visitors = list;
         })
         .catch(function () {
