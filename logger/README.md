@@ -46,6 +46,20 @@ Basic protection against automated submissions: a hidden field that people do no
 a minimum of three seconds between opening the page and sending, and an upper limit of
 30 accepted messages per hour. `purgeOldRows` also removes messages older than 12 months.
 
+## Chat
+
+The home page has a public chat, `#pardel`, in the style of IRC. Lines go to the sheet `Chat`
+(timestamp, session, nickname, text), created automatically with the first line.
+`GET ?chat=1` returns the last 80 lines from the past 72 hours and the number of open chat
+windows (sessions that polled within 45 seconds). The page polls every 4 seconds while the
+chat is open and every 30 seconds otherwise; responses are cached for up to 30 seconds and
+the cache is cleared on every new line.
+
+Limits: 300 characters per line, one line per two seconds and 30 per ten minutes per session,
+60 lines per minute for the channel, no repeated lines, no links. To remove a line, delete its
+row in the `Chat` sheet; it disappears from the page within 30 seconds. `purgeOldRows`
+deletes chat rows older than 30 days.
+
 ## Names
 
 Visitors may sign their point with a name, surname or nickname of up to 30 characters

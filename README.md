@@ -8,7 +8,7 @@ The site is static and served by GitHub Pages directly from the `main` branch. T
 
 | Path           | Purpose                                                                  |
 |----------------|--------------------------------------------------------------------------|
-| `index.html`   | Home page with the animated visualisation and the visit statistics panel |
+| `index.html`   | Home page with the animated visualisation, visit statistics and chat     |
 | `about.html`   | Research, positions, projects, honours and memberships                   |
 | `contact.html` | Contact form; messages are stored in the `Contact` sheet                 |
 | `privacy.html` | Privacy notice for the visit log, names and contact messages             |

@@ -4,7 +4,8 @@
  * Google Apps Script web app bound to a Google Sheet.
  *   POST  stores one visit (or adds an approximate location to a visit of the same session)
  *   POST  also receives messages from the contact form (sheet 'Contact')
- *   GET   returns aggregated statistics used by the page
+ *   POST  also receives chat lines from the home page (sheet 'Chat')
+ *   GET   returns aggregated statistics used by the page; GET ?chat=1 returns the chat
  *
  * Stored columns: timestamp, session, timezone, language, referrer, device, lat, lon, consent, name.
  * The name is optional, chosen by the visitor (max. 30 characters) and shown next to the point.
@@ -19,6 +20,17 @@ var CONTACT_SHEET = 'Contact';
 var CONTACT_HEADER = ['timestamp', 'name', 'reply to', 'message', 'language'];
 var CONTACT_PER_HOUR = 30;    // upper limit of accepted messages per hour, against floods
 var NAME_MAX = 30;
+
+var CHAT_SHEET = 'Chat';
+var CHAT_HEADER = ['timestamp', 'session', 'nick', 'text'];
+var CHAT_MAX = 300;           // characters per line
+var CHAT_LINES = 80;          // lines returned to the page
+var CHAT_WINDOW_H = 72;       // only lines from the last 72 hours are returned
+var CHAT_RETENTION_DAYS = 30; // chat rows older than this are removed by purgeOldRows()
+var CHAT_GAP_MS = 2000;       // minimum time between two lines from one session
+var CHAT_PER_10MIN = 30;      // lines per session per 10 minutes
+var CHAT_PER_MIN = 60;        // lines per minute for the whole channel
+var ONLINE_MS = 45000;        // a session counts as online if it polled within this time
 var PUBLIC_POINTS = 1000;     // most recent visits returned to the page
 var RETENTION_DAYS = 365;     // rows older than this are removed by purgeOldRows()
 var CACHE_SECONDS = 60;
@@ -47,6 +59,82 @@ function contactSheet_() {
     sh.getRange('D:D').setWrap(true);
   }
   return sh;
+}
+
+function chatSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(CHAT_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(CHAT_SHEET);
+    sh.appendRow(CHAT_HEADER);
+    sh.setFrozenRows(1);
+    sh.setColumnWidth(4, 520);
+  }
+  return sh;
+}
+
+// Stores one chat line. Lines with links are refused; repeated or too frequent lines are dropped.
+function storeChat_(sid, d) {
+  var nick = name_(d.nick);
+  var line = String(d.text === null || d.text === undefined ? '' : d.text)
+    .replace(/[\u0000-\u001f\u007f]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, CHAT_MAX);
+  if (!nick || !line) return;
+  if (/(https?:|www\.|\b[a-z0-9-]+\.(com|net|org|pl|io|ru|xyz|info|biz|top|link|click)\b)/i.test(line.replace(/\bpardel\.pl\b/gi, ''))) return;
+  if (/^[=+\-@]/.test(line)) line = "'" + line;
+
+  var cache = CacheService.getScriptCache();
+  var now = Date.now();
+  var lastKey = 'cl-' + sid, winKey = 'cw-' + sid + '-' + Math.floor(now / 6e5), minKey = 'cm-' + Math.floor(now / 6e4);
+  var prev = cache.getAll([lastKey, winKey, minKey]);
+  var last = prev[lastKey] ? JSON.parse(prev[lastKey]) : null;
+  if (last && (now - last.t < CHAT_GAP_MS || (last.x === line && now - last.t < 60000))) return;
+  if (Number(prev[winKey] || 0) >= CHAT_PER_10MIN) return;
+  if (Number(prev[minKey] || 0) >= CHAT_PER_MIN) return;
+  cache.put(lastKey, JSON.stringify({ t: now, x: line }), 600);
+  cache.put(winKey, String(Number(prev[winKey] || 0) + 1), 660);
+  cache.put(minKey, String(Number(prev[minKey] || 0) + 1), 90);
+
+  chatSheet_().appendRow([new Date(now), sid, nick, line]);
+  cache.remove('chat');
+}
+
+// Recent chat lines and the number of sessions that polled the chat recently.
+function chat_(sid) {
+  var cache = CacheService.getScriptCache();
+  var now = Date.now();
+
+  var pres = {};
+  try { pres = JSON.parse(cache.get('pres') || '{}'); } catch (err) { pres = {}; }
+  if (sid) pres[sid] = now;
+  var online = 0, kept = {};
+  Object.keys(pres).forEach(function (k) {
+    if (now - pres[k] < ONLINE_MS) { kept[k] = pres[k]; online++; }
+  });
+  cache.put('pres', JSON.stringify(kept), 300);
+
+  var lines = cache.get('chat');
+  if (!lines) {
+    var sh = chatSheet_();
+    var last = sh.getLastRow();
+    var out = [];
+    if (last >= 2) {
+      var from = Math.max(2, last - 299);
+      var rows = sh.getRange(from, 1, last - from + 1, 4).getValues();
+      var limit = now - CHAT_WINDOW_H * 36e5;
+      rows.forEach(function (r) {
+        var ts = new Date(r[0]).getTime();
+        if (!isFinite(ts) || ts < limit || !r[2] || !r[3]) return;
+        var t = String(r[3]);
+        out.push([new Date(ts).toISOString(), String(r[2]), t.charAt(0) === "'" ? t.slice(1) : t]);
+      });
+    }
+    lines = JSON.stringify(out.slice(-CHAT_LINES));
+    cache.put('chat', lines, 30);
+  }
+  return json_('{"online":' + Math.max(1, online) + ',"lines":' + lines + '}');
 }
 
 // Multi-line plain text (line breaks kept, other control characters removed).
@@ -146,6 +234,11 @@ function doPost(e) {
       return ok_();
     }
 
+    if (d.type === 'chat') {
+      storeChat_(sid, d);
+      return ok_();
+    }
+
     if (d.type === 'message') {
       storeMessage_(d);
       return ok_();
@@ -186,7 +279,12 @@ function doPost(e) {
   return ok_();
 }
 
-function doGet() {
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  if (p.chat) {
+    var s = text_(p.sid, 40);
+    return chat_(s && s.charAt(0) !== "'" ? s : '');
+  }
   var cache = CacheService.getScriptCache();
   var hit = cache.get('stats');
   if (hit) return json_(hit);
@@ -245,18 +343,21 @@ function doGet() {
   return json_(out);
 }
 
-/** Run daily from a time-driven trigger: removes visits and messages older than RETENTION_DAYS. */
+/** Run daily from a time-driven trigger: removes visits and messages older than RETENTION_DAYS
+ *  and chat lines older than CHAT_RETENTION_DAYS. */
 function purgeOldRows() {
-  [sheet_(), contactSheet_()].forEach(function (sh) {
+  [[sheet_(), RETENTION_DAYS], [contactSheet_(), RETENTION_DAYS], [chatSheet_(), CHAT_RETENTION_DAYS]].forEach(function (pair) {
+    var sh = pair[0];
     var last = sh.getLastRow();
     if (last < 2) return;
-    var limit = Date.now() - RETENTION_DAYS * 864e5;
+    var limit = Date.now() - pair[1] * 864e5;
     var stamps = sh.getRange(2, 1, last - 1, 1).getValues();
     var n = 0;
     while (n < stamps.length && new Date(stamps[n][0]).getTime() < limit) n++;
     if (n > 0) sh.deleteRows(2, n);
   });
   invalidate_();
+  CacheService.getScriptCache().remove('chat');
 }
 
 function invalidate_() {

@@ -330,6 +330,42 @@
     .consent .count { float: right; color: var(--faint); font-variant-numeric: tabular-nums; }
     .foot button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--dim); background: none; border: 0; cursor: pointer; }
 
+    /* Chat */
+    .chat {
+      position: fixed; right: 16px; bottom: 40px; z-index: 4;
+      width: min(380px, calc(100vw - 32px)); height: min(360px, calc(100vh - 140px));
+      display: flex; flex-direction: column;
+      background: rgba(0, 10, 5, 0.97); border: 1px solid var(--faint);
+      box-shadow: 0 0 30px rgba(0,255,136,0.12);
+      font-size: 0.72rem; line-height: 1.5; color: #cdeedd; cursor: default;
+    }
+    .chat[hidden] { display: none; }
+    .chat header {
+      position: static; padding: 7px 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--faint); pointer-events: auto; text-align: left;
+      font-size: 0.64rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim);
+    }
+    .chat header b { color: var(--pink); font-weight: 400; letter-spacing: 0.25em; }
+    .chat header button { font: inherit; color: var(--dim); background: none; border: 0; cursor: pointer; letter-spacing: 0.1em; padding: 2px 4px; }
+    .chat header button:hover { color: var(--green); }
+    .chat .log { flex: 1; overflow-y: auto; padding: 8px 10px; overscroll-behavior: contain; word-wrap: break-word; }
+    .chat .log div { margin-bottom: 2px; }
+    .chat .t { color: var(--faint); margin-right: 6px; font-variant-numeric: tabular-nums; }
+    .chat .n { color: var(--green); }
+    .chat .n.self { color: var(--pink); }
+    .chat .sys { color: var(--dim); }
+    .chat .act { color: #ffd6f6; font-style: italic; }
+    .chat .pending { opacity: 0.55; }
+    .chat form { display: flex; border-top: 1px solid var(--faint); }
+    .chat .nick { padding: 8px 0 8px 10px; color: var(--pink); white-space: nowrap; max-width: 40%; overflow: hidden; text-overflow: ellipsis; }
+    .chat input {
+      flex: 1; min-width: 0; font: inherit; font-size: 0.78rem; color: #eafff3;
+      background: transparent; border: 0; outline: none; padding: 8px 10px;
+    }
+    .chat input::placeholder { color: var(--faint); }
+    .chat .cnt { padding: 8px 8px 8px 0; color: var(--faint); font-variant-numeric: tabular-nums; }
+    .foot .unread { color: var(--pink); }
+
     @media (max-width: 1060px) { .term { display: none; } }
     @media (max-width: 640px) {
       .brand { top: auto; bottom: 34px; left: 0; right: 0; justify-content: center; gap: 16px; font-size: 0.58rem; letter-spacing: 0.22em; }
@@ -341,6 +377,8 @@
       .clock .row { font-size: 0.54rem; }
       .clock .cap { font-size: 0.5rem; letter-spacing: 0.18em; }
       .foot { left: 16px; right: 16px; bottom: 12px; text-align: center; }
+      .chat { left: 8px; right: 8px; bottom: 8px; width: auto; height: min(62vh, calc(100vh - 16px)); }
+      .chat input { font-size: 16px; }
     }
     @media (prefers-reduced-motion: reduce) {
       h1::before, h1::after { animation: none; }
@@ -421,7 +459,20 @@
     <div style="margin-top:8px"><a href="privacy.html">Privacy notice</a></div>
   </form>
 
-  <div class="foot" id="foot"><a href="privacy.html">Privacy</a> &middot; <button id="geoReset" type="button">Location choice</button> &middot; <button id="signOpen" type="button">Sign your point</button></div>
+  <section class="chat" id="chat" aria-label="Visitor chat" hidden>
+    <header>
+      <span><b>#pardel</b> &middot; <span id="chatOnline">1</span> online</span>
+      <button id="chatClose" type="button" aria-label="Close chat">[x]</button>
+    </header>
+    <div class="log" id="chatLog" role="log" aria-live="polite"></div>
+    <form id="chatForm" autocomplete="off" novalidate>
+      <span class="nick" id="chatNick"></span>
+      <input id="chatInput" type="text" maxlength="300" placeholder="say something, or /help" aria-label="Chat message" spellcheck="true">
+      <span class="cnt" id="chatCnt"></span>
+    </form>
+  </section>
+
+  <div class="foot" id="foot"><button id="chatOpen" type="button">Chat <span id="chatBadge"></span></button> &middot; <a href="privacy.html">Privacy</a> &middot; <button id="geoReset" type="button">Location choice</button> &middot; <button id="signOpen" type="button">Sign your point</button></div>
 
   <script>
   (function () {
@@ -741,6 +792,7 @@
       ["remaining time tends to zero", "warn"],
       ["each visitor is logged as a point of contact", "hot"],
       ["sign your point // a name will float next to it", ""],
+      ["#pardel is open // talk to whoever is here now", "hot"],
       ["time does not pause for either of us", ""],
       ["awaiting launch of pardel.pl", "hot"]
     ];
@@ -850,6 +902,7 @@
     function updateCount() { signCount.textContent = signName.value.length + "/" + NAME_MAX; }
     function applyName(name) {
       me.name = name;
+      if (name && !sget("l", "pp-nick")) { nick = name; chatNickEl.textContent = "<" + nick + ">"; }
       if (name) sset("l", "pp-name", name); else sdel("l", "pp-name");
       sset("l", "pp-signed", "1");
       send({ type: "name", sid: sid, sids: mySids, name: name });
@@ -858,7 +911,7 @@
     }
     function maybeInviteSign() {
       if (me.name || sget("l", "pp-signed") === "1") return;
-      setTimeout(function () { if (consentEl.hidden) showSign(true); }, reduced ? 0 : 1800);
+      setTimeout(function () { if (consentEl.hidden && !chatOpen) showSign(true); }, reduced ? 0 : 1800);
     }
     signName.addEventListener("input", updateCount);
     signEl.addEventListener("submit", function (e) {
@@ -967,8 +1020,140 @@
     }, { passive: true });
     window.addEventListener("resize", resize);
 
+    // ---------- chat (IRC style) ----------
+    var chatEl = document.getElementById("chat");
+    var chatLog = document.getElementById("chatLog");
+    var chatInput = document.getElementById("chatInput");
+    var chatNickEl = document.getElementById("chatNick");
+    var chatBadge = document.getElementById("chatBadge");
+    var chatCnt = document.getElementById("chatCnt");
+    var chatOpen = false, chatTimer = 0, chatLines = [], chatPending = [], chatSys = [], chatBusy = false;
+    var chatSeen = Number(sget("l", "pp-chat-seen") || 0);
+    var nick = cleanName(sget("l", "pp-nick")) || me.name || ("guest-" + sid.slice(0, 4));
+
+    function hhmm(ms) {
+      var d = new Date(ms);
+      return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+    }
+    function sys(text) { chatSys.push([Date.now(), text]); chatSys = chatSys.slice(-20); renderChat(true); }
+    function line(ms, who, text, cls) {
+      var row = document.createElement("div");
+      if (cls) row.className = cls;
+      var t = document.createElement("span"); t.className = "t"; t.textContent = hhmm(ms); row.appendChild(t);
+      if (who === null) {
+        var s = document.createElement("span"); s.className = "sys"; s.textContent = "*** " + text; row.appendChild(s);
+      } else if (text.indexOf("/me ") === 0) {
+        var a = document.createElement("span"); a.className = "act"; a.textContent = "* " + who + " " + text.slice(4); row.appendChild(a);
+      } else {
+        var n = document.createElement("span"); n.className = "n" + (who === nick ? " self" : ""); n.textContent = "<" + who + "> ";
+        row.appendChild(n); row.appendChild(document.createTextNode(text));
+      }
+      return row;
+    }
+    function renderChat(stick) {
+      var atBottom = chatLog.scrollHeight - chatLog.scrollTop - chatLog.clientHeight < 40;
+      var items = [];
+      chatLines.forEach(function (l) { items.push({ ms: Date.parse(l[0]) || 0, who: l[1], text: l[2] }); });
+      chatSys.forEach(function (s) { items.push({ ms: s[0], who: null, text: s[1] }); });
+      chatPending.forEach(function (p) { items.push({ ms: p.ms, who: p.nick, text: p.text, cls: "pending" }); });
+      items.sort(function (a, b) { return a.ms - b.ms; });
+      chatLog.textContent = "";
+      var frag = document.createDocumentFragment();
+      frag.appendChild(line(Date.now(), null, "welcome to #pardel // a channel for everyone on this page right now"));
+      frag.appendChild(line(Date.now(), null, "be kind // lines are public, kept 30 days, links are not allowed // /help"));
+      items.forEach(function (it) { frag.appendChild(line(it.ms, it.who, it.text, it.cls)); });
+      chatLog.appendChild(frag);
+      if (stick || atBottom) chatLog.scrollTop = chatLog.scrollHeight;
+    }
+    function setNick(n) {
+      nick = n; chatNickEl.textContent = "<" + nick + ">";
+      sset("l", "pp-nick", nick);
+    }
+    function updateBadge() {
+      var unread = 0;
+      chatLines.forEach(function (l) { if ((Date.parse(l[0]) || 0) > chatSeen && l[1] !== nick) unread++; });
+      chatBadge.textContent = unread && !chatOpen ? "(" + unread + ")" : "";
+      chatBadge.className = unread && !chatOpen ? "unread" : "";
+    }
+    function markSeen() {
+      chatLines.forEach(function (l) { chatSeen = Math.max(chatSeen, Date.parse(l[0]) || 0); });
+      sset("l", "pp-chat-seen", String(chatSeen));
+      updateBadge();
+    }
+    function pollChat() {
+      clearTimeout(chatTimer);
+      var next = chatOpen ? 4000 : 30000;
+      if (!LOG_ENDPOINT || document.hidden) { chatTimer = setTimeout(pollChat, next); return; }
+      fetch(LOG_ENDPOINT + "?chat=1&sid=" + encodeURIComponent(chatOpen ? sid : ""), { method: "GET" })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          chatBusy = false;
+          chatLines = Array.isArray(d.lines) ? d.lines : [];
+          document.getElementById("chatOnline").textContent = d.online || 1;
+          var now = Date.now();
+          chatPending = chatPending.filter(function (p) {
+            var arrived = chatLines.some(function (l) { return l[1] === p.nick && l[2] === p.text; });
+            if (!arrived && now - p.ms > 25000) sys("line not delivered // slow down, or it contained a link");
+            return !arrived && now - p.ms <= 25000;
+          });
+          if (chatOpen) { renderChat(false); markSeen(); } else updateBadge();
+        })
+        .catch(function () { if (chatOpen && !chatBusy) { chatBusy = true; sys("connection lost // retrying"); } })
+        .then(function () { chatTimer = setTimeout(pollChat, next); });
+    }
+    function showChat(show) {
+      chatOpen = show;
+      chatEl.hidden = !show;
+      footEl.style.display = show ? "none" : "";
+      if (show) {
+        consentEl.hidden = true; signEl.hidden = true;
+        chatNickEl.textContent = "<" + nick + ">";
+        renderChat(true); markSeen();
+        if (!window.matchMedia("(pointer: coarse)").matches) { try { chatInput.focus(); } catch (e) {} }
+      }
+      updateBadge();
+      pollChat();
+    }
+    var LINK_RE = /(https?:|www\.|\b[a-z0-9-]+\.(com|net|org|pl|io|ru|xyz|info|biz|top|link|click)\b)/i;
+    document.getElementById("chatForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var text = chatInput.value.replace(/\s+/g, " ").trim();
+      if (!text) return;
+      chatInput.value = ""; chatCnt.textContent = "";
+      if (text.charAt(0) === "/" && text.indexOf("/me ") !== 0) {
+        var parts = text.split(" "), cmd = parts[0].toLowerCase(), arg = parts.slice(1).join(" ");
+        if (cmd === "/nick") {
+          var n = cleanName(arg);
+          if (!n) sys("usage: /nick name // letters, digits, spaces, . _ - ' // max. 30");
+          else { var old = nick; setNick(n); sys(old + " is now known as " + n); }
+        } else if (cmd === "/clear") {
+          chatSys = []; chatLines = []; markSeen(); renderChat(true);
+        } else {
+          sys("commands: /nick name // /me action // /clear // close with [x]");
+        }
+        return;
+      }
+      if (LINK_RE.test(text.replace(/\bpardel\.pl\b/gi, ""))) { sys("links are not allowed here"); return; }
+      var last = chatPending[chatPending.length - 1];
+      if (last && Date.now() - last.ms < 2000) { sys("slow down // one line every two seconds"); chatInput.value = text; return; }
+      chatPending.push({ ms: Date.now(), nick: nick, text: text });
+      renderChat(true);
+      send({ type: "chat", sid: sid, nick: nick, text: text });
+      setTimeout(pollChat, 1500);
+    });
+    chatInput.addEventListener("input", function () {
+      var n = chatInput.value.length;
+      chatCnt.textContent = n > 240 ? (300 - n) : "";
+    });
+    chatInput.addEventListener("keydown", function (e) { if (e.key === "Escape") showChat(false); });
+    document.getElementById("chatOpen").addEventListener("click", function () { showChat(true); });
+    document.getElementById("chatClose").addEventListener("click", function () { showChat(false); });
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) pollChat(); });
+    chatNickEl.textContent = "<" + nick + ">";
+
     resize();
     requestAnimationFrame(frame);
+    setTimeout(pollChat, 3000);
     setTimeout(loadStats, firstInSession ? 2000 : 300);
     setInterval(loadStats, 60000);
     feed();
