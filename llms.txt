@@ -2,6 +2,10 @@
 
 > Przemysław Wiktor Pardel (also Przemek Pardel), PhD Eng., is a Polish research scientist and engineer working on medical image analysis, computer vision and interpretable machine learning. He is an Assistant Professor at the Institute of Computer Science, University of Rzeszów, and at the Department of Computer Science, Faculty of Engineering Sciences, Academy of Applied Sciences in Nowy Sącz (ANS), and a researcher at the University of Zurich.
 
+## Mission
+
+To invent, design, implement and accelerate remarkable innovation breakthroughs to improve people's lives and inspire future inventors.
+
 ## Research
 
 - Transparent, quantitatively validated AI systems for medical decision support, with emphasis on reproducibility, annotation reliability and geometry-aware modelling.
